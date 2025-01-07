@@ -1,3 +1,5 @@
+"use client";
+
 import { FaCalendarCheck } from "react-icons/fa6"
 import { HiOutlineHandRaised } from "react-icons/hi2";
 import { Button } from "../ui/button"
