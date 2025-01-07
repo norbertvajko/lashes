@@ -57,8 +57,7 @@ export const CoursesComponentDemo: FC<{
     return (
       <div className={`flex justify-center bg-white flex-col items-center py-3 ${className}`}>
         {hasTitle && (
-          <div className="flex flex-row items-center justify-center gap-2">
-            <span className="text-3xl">👩🏻‍🏫</span>
+          <div className="flex flex-row items-center justify-center gap-2 text-center">
             <motion.h1
               className="py-5 font-bold text-3xl bg-clip-text text-transparent"
               initial={{ backgroundPosition: '100% 0' }}

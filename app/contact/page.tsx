@@ -10,7 +10,7 @@ const ContactPage = async () => {
 			<div className="flex flex-col">
 				<div className="flex flex-col md:flex-row bg-black h-screen">
 					{/* Apply margin-bottom only on mobile screens (below md) */}
-					<div className="md:w-2/5 w-full h-1/2 md:h-full mb-[208px] md:mb-0">
+					<div className="md:w-2/5 w-full h-1/2 md:h-full mb-[215px] md:mb-0">
 						<img
 							src={contactModelImg.src}
 							alt="Contact Model"

@@ -4,7 +4,7 @@ import Autoplay from 'embla-carousel-autoplay';
 import { XCircle } from 'lucide-react';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Carousel, CarouselContent, CarouselItem } from '../ui/carousel';
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '../ui/carousel';
 
 interface ModalProps {
     isOpen: boolean;
@@ -134,6 +134,9 @@ const GalleryComponent: React.FC = () => {
 
     return (
         <>
+            <h3 className='text-center text-4xl font-bold py-10 pt-10 pb-0 md:py-10'>
+                Galerie foto 📸
+            </h3>
             {isMobile ? (
                 <div className='mt-10 mb-7'>
                     <Carousel
@@ -156,6 +159,8 @@ const GalleryComponent: React.FC = () => {
                                 </CarouselItem>
                             ))}
                         </CarouselContent>
+                        <CarouselPrevious className="absolute left-2 top-1/2 z-10 opacity-60 hover:opacity-100 transition-opacity duration-300" />
+                        <CarouselNext className="absolute right-2 top-1/2 z-10 opacity-60 hover:opacity-100 transition-opacity duration-300" />
                     </Carousel>
                 </div>
             ) : (
