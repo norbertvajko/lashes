@@ -3,7 +3,7 @@
 import { WhatsappShareButton, WhatsappIcon } from "react-share";
 
 export const WhatsappContact = () => {
-    const phoneNumber = "40771539402"; 
+    const phoneNumber = "40755015816"; 
     const message = "Buna! 🥰"; 
 
     const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;

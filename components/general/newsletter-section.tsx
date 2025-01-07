@@ -1,8 +1,11 @@
 import { FaCalendarCheck } from "react-icons/fa6"
 import { HiOutlineHandRaised } from "react-icons/hi2";
 import { Button } from "../ui/button"
+import { useIsMobile } from "@/hooks/use-is-mobile";
 
 export const NewsletterSection = async () => {
+    const isMobile = useIsMobile();
+
     return (
         <>
             <div className="relative w-full h-screen bg-black/90">
@@ -14,12 +17,13 @@ export const NewsletterSection = async () => {
                     loading="lazy"
                     referrerPolicy="no-referrer-when-downgrade">
                 </iframe>
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] rounded-full border-2 border-red-500 z-10">
-                    <div
-                        className="w-full h-full rounded-full opacity-20" style={{background: "rgba(0, 0, 0, 0.1)"}}>
+                {!isMobile ? (
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] rounded-full border-2 border-red-500 z-10">
+                        <div
+                            className="w-full h-full rounded-full opacity-20" style={{ background: "rgba(0, 0, 0, 0.1)" }}>
+                        </div>
                     </div>
-                </div>
-
+                ) : ""}
                 <div className="flex flex-col items-end justify-center mt-4 md:flex-row md:justify-around md:pt-32 md:mt-0">
                     <div className="relative flex-wrap hidden m-4 bg-white rounded-md shadow-md md:flex">
                         <img
