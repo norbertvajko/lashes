@@ -67,7 +67,7 @@ export const FooterComponent = () => {
                         <div className="flex text-gray-500">
                             <p className="mr-1">Telefon:</p>
                             <a
-                                href="tel:850-123-5021"
+                                href="tel:0755018516"
                                 aria-label="Our phone"
                                 title="Our phone"
                                 className="transition-colors duration-300 text-deep-purple-accent-400 hover:text-deep-gray-800 text-gray-400"
@@ -75,7 +75,7 @@ export const FooterComponent = () => {
                                 0755 018 516
                             </a>
                         </div>
-                        <div className="flex text-gray-500">
+                        {/* <div className="flex text-gray-500">
                             <p className="mr-1">Email:</p>
                             <a
                                 href="mailto:info@lorem.mail"
@@ -84,8 +84,8 @@ export const FooterComponent = () => {
                                 className="transition-colors duration-300 text-deep-purple-accent-400 hover:text-deep-gray-800 text-gray-400"
                             >
                                 ll-lashes.mail.ro
-                            </a>
-                        </div>
+                            </a> */}
+                        {/* </div> */}
                         <div className="flex text-gray-500">
                             <p className="mr-1">Adresa:</p>
                             <a
@@ -105,29 +105,84 @@ export const FooterComponent = () => {
                             Social
                         </span>
                         <div className="flex items-center mt-1 space-x-3">
+
                             <a
-                                href="/"
-                                className="text-gray-500 transition-colors duration-300 hover:text-[#1DA1F2]"
+                                href="https://www.tiktok.com/@larisatonta_lash_trainer"
+                                className="text-gray-500 transition-colors duration-300 hover:text-[#25F4EE]"
                             >
-                                <svg viewBox="0 0 24 24" fill="currentColor" className="h-5">
-                                    <path d="M24,4.6c-0.9,0.4-1.8,0.7-2.8,0.8c1-0.6,1.8-1.6,2.2-2.7c-1,0.6-2,1-3.1,1.2c-0.9-1-2.2-1.6-3.6-1.6 c-2.7,0-4.9,2.2-4.9,4.9c0,0.4,0,0.8,0.1,1.1C7.7,8.1,4.1,6.1,1.7,3.1C1.2,3.9,1,4.7,1,5.6c0,1.7,0.9,3.2,2.2,4.1 C2.4,9.7,1.6,9.5,1,9.1c0,0,0,0,0,0.1c0,2.4,1.7,4.4,3.9,4.8c-0.4,0.1-0.8,0.2-1.3,0.2c-0.3,0-0.6,0-0.9-0.1c0.6,2,2.4,3.4,4.6,3.4 c-1.7,1.3-3.8,2.1-6.1,2.1c-0.4,0-0.8,0-1.2-0.1c2.2,1.4,4.8,2.2,7.5,2.2c9.1,0,14-7.5,14-14c0-0.2,0-0.4,0-0.6 C22.5,6.4,23.3,5.5,24,4.6z" />
+                                <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-5">
+                                    <path
+                                        fillRule="evenodd"
+                                        clipRule="evenodd"
+                                        d="M16.1 16.6C14.3 18.2 13.1 20.6 13.1 23.3C13.1 26.7 15.7 29.3 19.1 29.3C20.3 29.3 21.3 29 22.2 28.5V34.5C20.5 35.1 18.7 35.3 16.8 35.3C9.8 35.3 4.5 30 4.5 23C4.5 19.1 6.1 15.6 8.9 13.2C10.7 11.8 12.8 11 15.2 10.8V16.8C15.8 16.6 16.5 16.6 17.1 16.6H16.1ZM29.1 16.6C27.6 16.6 26.2 16.3 25 15.8V33.6C25 35.7 26.6 37.3 28.7 37.3C30.8 37.3 32.4 35.7 32.4 33.6V15.6C34.2 17.7 36.6 19.1 39.2 19.3V25.3C38.4 25.5 37.7 25.6 37 25.6C30.1 25.6 24.8 20.3 24.8 13.3V12.4H29.2V16.6H29.1Z"
+                                        fill="#25F4EE"
+                                    />
+                                    <path
+                                        d="M32.4 15.6V33.6C32.4 35.7 30.8 37.3 28.7 37.3C26.6 37.3 25 35.7 25 33.6V15.8C26.2 16.3 27.6 16.6 29.1 16.6H32.4V15.6Z"
+                                        fill="#FE2C55"
+                                    />
+                                    <path
+                                        d="M29.1 16.6H32.4V12.4H29.2V16.6H29.1Z"
+                                        fill="#000000"
+                                    />
                                 </svg>
                             </a>
                             <a
-                                href="/"
+                                href="https://www.instagram.com/larisatonta_lash_trainer/"
                                 className="text-gray-500 transition-colors duration-300 hover:text-[#E4405F]"
                             >
-                                <svg viewBox="0 0 30 30" fill="currentColor" className="h-6">
-                                    <circle cx="15" cy="15" r="4" />
-                                    <path d="M19.999,3h-10C6.14,3,3,6.141,3,10.001v10C3,23.86,6.141,27,10.001,27h10C23.86,27,27,23.859,27,19.999v-10   C27,6.14,23.859,3,19.999,3z M15,21c-3.309,0-6-2.691-6-6s2.691-6,6-6s6,2.691,6,6S18.309,21,15,21z M22,9c-0.552,0-1-0.448-1-1   c0-0.552,0.448-1,1-1s1,0.448,1,1C23,8.552,22.552,9,22,9z" />
+                                <svg
+                                    viewBox="0 0 30 30"
+                                    fill="none"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    className="h-6"
+                                >
+                                    <path
+                                        d="M15 8.89C12.349 8.89 10.224 11.014 10.224 13.666C10.224 16.318 12.349 18.442 15 18.442C17.651 18.442 19.776 16.318 19.776 13.666C19.776 11.014 17.651 8.89 15 8.89ZM15 16.984C13.518 16.984 12.342 15.808 12.342 14.326C12.342 12.843 13.518 11.667 15 11.667C16.482 11.667 17.658 12.843 17.658 14.326C17.658 15.808 16.482 16.984 15 16.984Z"
+                                        fill="url(#instagramGradient)"
+                                    />
+                                    <path
+                                        d="M20.8 8.473C21.2 8.473 21.552 8.121 21.552 7.721C21.552 7.321 21.2 6.969 20.8 6.969C20.4 6.969 20.048 7.321 20.048 7.721C20.048 8.121 20.4 8.473 20.8 8.473Z"
+                                        fill="url(#instagramGradient)"
+                                    />
+                                    <path
+                                        d="M19.353 5H10.647C7.951 5 6 6.952 6 9.647V18.353C6 21.048 7.951 23 10.647 23H19.353C22.048 23 24 21.048 24 18.353V9.647C24 6.952 22.048 5 19.353 5ZM22.112 18.353C22.112 20.13 20.13 22.112 18.353 22.112H11.647C9.87 22.112 7.888 20.13 7.888 18.353V11.647C7.888 9.87 9.87 7.888 11.647 7.888H18.353C20.13 7.888 22.112 9.87 22.112 11.647V18.353Z"
+                                        fill="url(#instagramGradient)"
+                                    />
+                                    <defs>
+                                        <linearGradient
+                                            id="instagramGradient"
+                                            x1="15"
+                                            y1="5"
+                                            x2="15"
+                                            y2="23"
+                                            gradientUnits="userSpaceOnUse"
+                                        >
+                                            <stop stopColor="#F58529" />
+                                            <stop offset="0.5" stopColor="#DD2A7B" />
+                                            <stop offset="1" stopColor="#8134AF" />
+                                        </linearGradient>
+                                    </defs>
                                 </svg>
                             </a>
                             <a
-                                href="/"
+                                href="https://www.facebook.com/profile.php?id=100036100703312"
                                 className="text-gray-500 transition-colors duration-300 hover:text-[#1877F2]"
                             >
-                                <svg viewBox="0 0 24 24" fill="currentColor" className="h-5">
-                                    <path d="M22,0H2C0.895,0,0,0.895,0,2v20c0,1.105,0.895,2,2,2h11v-9h-3v-4h3V8.413c0-3.1,1.893-4.788,4.659-4.788 c1.325,0,2.463,0.099,2.795,0.143v3.24l-1.918,0.001c-1.504,0-1.795,0.715-1.795,1.763V11h4.44l-1,4h-3.44v9H22c1.105,0,2-0.895,2-2 V2C24,0.895,23.105,0,22,0z" />
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    className="h-5"
+                                >
+                                    <path
+                                        d="M22.675 0H1.325C0.593 0 0 0.593 0 1.325V22.675C0 23.407 0.593 24 1.325 24H12.82V14.708H9.692V11.077H12.82V8.414C12.82 5.438 14.69 3.825 17.323 3.825C18.602 3.825 19.733 3.919 20.042 3.955V7.033H18.218C16.645 7.033 16.27 7.844 16.27 9.027V11.077H19.909L19.371 14.708H16.27V24H22.675C23.407 24 24 23.407 24 22.675V1.325C24 0.593 23.407 0 22.675 0Z"
+                                        fill="#1877F2"
+                                    />
+                                    <path
+                                        d="M16.27 24V14.708H19.371L19.909 11.077H16.27V9.027C16.27 7.844 16.645 7.033 18.218 7.033H20.042V3.955C19.733 3.919 18.602 3.825 17.323 3.825C14.69 3.825 12.82 5.438 12.82 8.414V11.077H9.692V14.708H12.82V24H16.27Z"
+                                        fill="white"
+                                    />
                                 </svg>
                             </a>
                         </div>
