@@ -10,7 +10,7 @@ export const NewsletterSection = async () => {
 
     return (
         <>
-            <div className="relative w-full h-screen bg-black/90">
+            <div className="relative w-full h-full md:h-screen bg-black/90">
                 <iframe
                     className="top-0 left-0 w-full md:absolute h-1/2 md:h-full rounded-md opacity-80"
                     src="https://maps.google.com/maps?width=100%25&amp;height=600&amp;hl=en&amp;q=LL%20Lashes%20by%20Larisa%20Ton%C8%9Ba,%20Strada%20Mihai%20Eminescu%2028,%20Arad%20310086&amp;t=h&amp;z=18&amp;ie=UTF8&amp;iwloc=near&amp;output=embed&amp;zoomControl=false&amp;directions=true"
@@ -41,7 +41,7 @@ export const NewsletterSection = async () => {
                 </div>
             </div>
 
-            <div className="relative overflow-hidden bg-white py-16 sm:py-24 lg:py-32">
+            {/* <div className="relative overflow-hidden bg-white py-16 sm:py-24 lg:py-32">
                 <div className="mx-auto max-w-7xl px-6 lg:px-8">
                     <div className="mx-auto grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-2">
                         <div className="max-w-xl lg:max-w-lg">
@@ -93,7 +93,7 @@ export const NewsletterSection = async () => {
                         </dl>
                     </div>
                 </div>
-            </div>
+            </div> */}
         </>
     )
 }

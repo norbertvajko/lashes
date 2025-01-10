@@ -105,10 +105,10 @@ export const FooterComponent = () => {
                             Social
                         </span>
                         <div className="flex items-center mt-1 space-x-3">
-
                             <a
                                 href="https://www.tiktok.com/@larisatonta_lash_trainer"
                                 className="text-gray-500 transition-colors duration-300 hover:text-[#25F4EE]"
+                                target="_blank"
                             >
                                 <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-5">
                                     <path
@@ -130,6 +130,7 @@ export const FooterComponent = () => {
                             <a
                                 href="https://www.instagram.com/larisatonta_lash_trainer/"
                                 className="text-gray-500 transition-colors duration-300 hover:text-[#E4405F]"
+                                target="_blank"
                             >
                                 <svg
                                     viewBox="0 0 30 30"
@@ -168,6 +169,7 @@ export const FooterComponent = () => {
                             <a
                                 href="https://www.facebook.com/profile.php?id=100036100703312"
                                 className="text-gray-500 transition-colors duration-300 hover:text-[#1877F2]"
+                                target="_blank"
                             >
                                 <svg
                                     viewBox="0 0 24 24"
@@ -190,7 +192,7 @@ export const FooterComponent = () => {
                 </div>
                 <div className="flex flex-col-reverse justify-between pt-5 pb-10 border-t lg:flex-row">
                     <p className="text-sm text-gray-600">
-                        © Copyright 2020 Lorem Inc. All rights reserved.
+                        © Copyright 2025 VNS. All rights reserved.
                     </p>
                     <ul className="flex flex-col mb-3 space-y-2 lg:mb-0 sm:space-y-0 sm:space-x-5 sm:flex-row">
                         <li>

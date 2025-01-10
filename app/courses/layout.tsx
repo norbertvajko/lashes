@@ -8,7 +8,7 @@ const CoursesPageLayout = ({ children }: { children: React.ReactNode }) => {
     return (
         <>
             <Navbar />
-            <div className="lg:pb-[70px] lg:pt-[130px]">
+            <div className="mt-[120px] md:mt-[5px] lg:pb-[70px] lg:pt-[130px]">
                 {children}
                 <BackButton variant="outline" />
             </div>

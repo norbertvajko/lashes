@@ -23,8 +23,7 @@ const BlogPostPage = async ({ slug }: any) => {
                     <img
                         alt="gene extensii"
                         src="../assets/images/blog-banner.jpg"
-                        className="w-full object-cover lg:rounded mt-6 shadow-lg"
-                        style={{ height: "30em" }}
+                        className="w-full object-cover lg:rounded mt-6 shadow-lg h-[10em] lg:h-[30em]"
                     />
                 </div>
 
