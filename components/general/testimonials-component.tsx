@@ -81,11 +81,13 @@ export const TestimonialsComponent = () => {
     const openModal = (testimonial: Testimonial) => {
         setSelectedTestimonial(testimonial);
         setModalOpen(true);
+        document.body.style.overflow = 'hidden';
     };
 
     const closeModal = () => {
         setModalOpen(false);
         setSelectedTestimonial(null);
+        document.body.style.overflow = 'auto';
     };
 
     const isLongText = (text: string) => {
