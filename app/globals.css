@@ -341,3 +341,13 @@ body,
   width: 2.4rem;
   height: 2.4rem;
 }
+
+.cl-userButtonPopoverCard {
+  z-index: 99999999;
+}
+
+@media (max-width: 768px) { 
+  .cl-userButtonPopoverCard {
+    margin-left: 16px;
+  }
+}
