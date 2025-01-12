@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import React from "react";
 
 const logos = [
@@ -35,7 +34,7 @@ const CertificationsSlider: React.FC = () => {
                             >
                                 {logos.concat(logos).map((logo, i) => (
                                     <li key={logo.alt + i}>
-                                        <Image src={logo.src} alt={logo.alt} />
+                                        <img src={logo.src} alt={logo.alt} />
                                     </li>
                                 ))}
                             </ul>

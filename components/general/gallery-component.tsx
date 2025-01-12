@@ -5,7 +5,6 @@ import { XCircle } from 'lucide-react';
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '../ui/carousel';
-import Image from 'next/image';
 
 interface ModalProps {
     isOpen: boolean;
@@ -48,7 +47,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, imageSrc, imageAlt }) =>
                 className="relative w-full h-full bg-white rounded-lg overflow-hidden"
                 onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside the modal content
             >
-                <Image src={imageSrc} alt={imageAlt} className="w-full h-full object-contain" />
+                <img src={imageSrc} alt={imageAlt} className="w-full h-full object-contain" />
                 <button
                     className="absolute top-4 right-4 bg-white bg-opacity-80 border-none cursor-pointer p-2 rounded-md"
                     onClick={onClose}
@@ -150,7 +149,7 @@ const GalleryComponent: React.FC = () => {
                                 <CarouselItem key={index}>
                                     <div className="cursor-pointer" onClick={() => openModal(photo)}>
                                         <div className="relative w-full h-[250px]"> {/* Set a fixed height for consistency */}
-                                            <Image
+                                            <img
                                                 src={photo.src}
                                                 alt={photo.alt}
                                                 className="object-cover w-full h-full rounded-lg" // Ensure the image covers the area and rounds the corners
@@ -175,7 +174,7 @@ const GalleryComponent: React.FC = () => {
                                 {strip.map((photo, photoIndex) => (
                                     <div key={photoIndex} className="photo" onClick={() => openModal(photo)}>
                                         <div className="photo__image">
-                                            <Image src={photo.src} alt={photo.alt} className="object-cover w-full h-full" />
+                                            <img src={photo.src} alt={photo.alt} className="object-cover w-full h-full" />
                                         </div>
                                     </div>
                                 ))}

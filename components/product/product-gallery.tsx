@@ -4,7 +4,6 @@ import {
 } from '@/components/ui/carousel';
 import Autoplay from 'embla-carousel-autoplay';
 import useWindowWidth from '@/hooks/use-window-width';
-import Image from "next/image";
 
 interface ProductGalleryProps {
     images?: string[]
@@ -31,7 +30,7 @@ export const ProductGallery = (props: ProductGalleryProps) => {
         <div className="flex bg-off-white lg:w-[420px] 2xl:w-[580px] h-[350px] lg:h-full">
             <div className="overflow-hidden">
                 <div className="relative mb-2 bg-white">
-                    <Image
+                    <img
                         src={images[activeIndex]}
                         alt="Gallery Hero"
                         className="p-[55px] h-[350px] w-[1018px] lg:w-[420px] lg:h-[518px] 2xl:w-[580px] transition-transform duration-300 transform hover:scale-105 object-contain"
@@ -51,7 +50,7 @@ export const ProductGallery = (props: ProductGalleryProps) => {
                                     className={`flex ${index === activeIndex ? 'opacity-20' : 'opacity-75 hover:opacity-100'}`}
                                 >
                                     <CarouselItem>
-                                        <Image 
+                                        <img 
                                             src={image} 
                                             alt={`Thumbnail ${index + 1}`} 
                                             className="object-contain w-[128px] h-[70px] md:h-[128px] p-[13px]" 

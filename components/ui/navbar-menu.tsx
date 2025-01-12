@@ -2,7 +2,6 @@
 import React from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import Image from "next/image";
  
 const transition = {
   type: "spring",
@@ -90,7 +89,7 @@ export const ProductItem = ({
 }) => {
   return (
     <Link href={href} className="flex space-x-2">
-      <Image
+      <img
         src={src}
         width={140}
         height={70}

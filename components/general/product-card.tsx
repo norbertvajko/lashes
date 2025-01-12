@@ -8,8 +8,6 @@ import { MdFavorite } from "react-icons/md";
 import { RatingReviews } from "./rating-reviews";
 import { BsCartCheckFill } from "react-icons/bs";
 import { IoMdHeartEmpty } from "react-icons/io";
-import Image from "next/image";
-
 
 export interface ProductCardProps {
     className?: string;
@@ -65,7 +63,7 @@ export const ProductCard = (props: ProductCardProps) => {
                         <span>{promoPrice}% REDUCERE</span>
                     </Badge>
                 ) : (null)}
-                <Image
+                <img
                     className="object-contain w-full hover:scale-110 cursor-pointer p-4"
                     src={images?.[0] ?? ''}
                     alt="product-image"

@@ -5,7 +5,6 @@ import PageLoader from "@/components/page-loader";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 
 type Order = {
     id: number;
@@ -127,7 +126,7 @@ export default function OrdersPage() {
                         </Table>
                     ) : (
                         <div className="text-center">
-                            <Image src="/assets/images/no-courses.png" alt="Nu exista cursuri" className="w-48 mx-auto mb-4" />
+                            <img src="/assets/images/no-courses.png" alt="Nu exista cursuri" className="w-48 mx-auto mb-4" />
                             <Button onClick={navigateToCourses} className="text-white bg-gradient-to-br from-pink-500 to-orange-400 hover:bg-gradient-to-bl focus:outline-none focus:ring-0 font-medium text-sm px-5 py-2.5 text-center">
                                 Descoperă Cursurile 
                             </Button>

@@ -1,6 +1,5 @@
 import React from 'react';
 import newsletterImg from "../../assets/images/newsletter-img.png";
-import Image from 'next/image';
 
 export const NewsletterComponent = () => {
     return (
@@ -45,7 +44,7 @@ export const NewsletterComponent = () => {
                                     </div>
                                 </div>
                                 <div>
-                                    <Image
+                                    <img
                                         src={newsletterImg.src}
                                         className="w-full rounded-lg shadow-lg transform rotate-6"
                                         alt=""

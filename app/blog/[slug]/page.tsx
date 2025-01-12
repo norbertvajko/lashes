@@ -1,6 +1,5 @@
 import { BackButton } from "@/components/general/back-button";
 import CommandsSection from "../_components/comments-sections";
-import Image from "next/image";
 
 const BlogPostPage = async ({ slug }: any) => {
 
@@ -18,9 +17,9 @@ const BlogPostPage = async ({ slug }: any) => {
                             Tot ce trebuie să știi pentru a menține extensiile de gene impecabile și sănătatea genelor naturale.
                         </p>
                     </div>
-                    <Image
+                    <img
                         alt="gene extensii"
-                        src="../assets/images/blog-banner.jpg"
+                        src="/assets/images/blog-banner.jpg"
                         className="w-full object-cover lg:rounded mt-6 shadow-lg h-[10em] lg:h-[30em]"
                     />
                 </div>
@@ -67,7 +66,7 @@ const BlogPostPage = async ({ slug }: any) => {
                     <div className="w-full lg:w-1/4 mt-12 lg:mt-0">
                         <div className="p-6 border border-gray-200 rounded-lg shadow-lg">
                             <div className="flex items-center mb-4">
-                                <Image
+                                <img
                                     alt="author"
                                     src="../assets/images/lari-img.jpg"
                                     className="h-12 w-12 lg:w-16 rounded-full object-cover mr-4"

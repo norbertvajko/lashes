@@ -4,8 +4,6 @@ import { Button } from "@/components/ui/button"
 import logo from "../../assets/images/logo-white.png";
 import { useRouter} from "next/navigation";
 import { APP_ROUTES } from "@/constants/routes";
-import Image from "next/image";
-
 
 export const LogoComponent = () => {
     const router = useRouter();
@@ -16,7 +14,7 @@ export const LogoComponent = () => {
 
     return (
         <Button variant={"icon"} className="p-0" onClick={handleLogoClick}>
-            <Image
+            <img
                 onClick={handleLogoClick}
                 src={logo.src}
                 alt={"logo"}

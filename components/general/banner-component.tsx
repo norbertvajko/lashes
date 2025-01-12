@@ -8,7 +8,6 @@ import { SparklesCore } from '../ui/sparkles';
 import { FlipWords } from '../ui/flip-words';
 import ScrollDownButton from "@/components/ui/scroll-down-btn"
 import useWindowWidth from '@/hooks/use-window-width';
-import Image from 'next/image';
 
 const banners = [
   lashesBanner
@@ -42,7 +41,7 @@ export const BannerComponent = () => {
 
                 {/* Imaginea pe mobil */}
                 <div className="w-full sm:hidden flex justify-center items-center mb-4 pt-[106px] z-[99999]">
-                  <Image
+                  <img
                     src={banner.src}
                     alt={`banner-${index + 1}`}
                     className="w-[280px] h-[280px] object-cover rounded-full"  // Imaginea mai mica si rotunda pe mobil
@@ -56,7 +55,7 @@ export const BannerComponent = () => {
                   transition={{ duration: 0.2 }}
                   className="max-h-[640px] z-[9999] w-[30%] justify-center items-center hidden sm:flex"
                 >
-                  <Image
+                  <img
                     src={banner.src}
                     alt={`banner-${index + 1}`}
                     className="w-full h-[177px] md:h-[450px] lg:h-[640px] max-w-[470px] object-cover"
