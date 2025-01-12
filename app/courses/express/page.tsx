@@ -1,11 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import expressModuleImg from "../../../assets/images/Curs_Modul_Express.jpg";
 import { useRouter } from 'next/navigation';
 import { RatingReviews } from '@/components/general/rating-reviews';
-import { useCart } from '@/context/cart-context';
-import { useFavorites } from '@/context/favorites-context';
 
 const Breadcrumb: React.FC = () => {
     const router = useRouter();
@@ -34,9 +32,6 @@ const Breadcrumb: React.FC = () => {
 };
 
 const ExpressCourse = () => {
-    const { addToCart } = useCart();
-    const { addToFavorites } = useFavorites();
-
     const initialPoints = [
         "📝Vei învăța elementele de bază ale aplicării extensiilor de gene, doar la suprafață, pentru a înțelege mai bine despre ce este vorba în această meserie. ",
         "✅Scopul meu este să îți ofer o privire de ansamblu, astfel încât să îți poți forma o opinie informată și să descoperi dacă ai o înclinație spre acest domeniu sau NU❌"
@@ -127,26 +122,10 @@ const ExpressCourse = () => {
                                     <i className='bx bxs-zap'></i> Cumpara acum 🔥
                                 </button>
                                 <button
-                                    onClick={() => addToCart({
-                                        description: "description",
-                                        id: "1",
-                                        link: "#",
-                                        price: "2000",
-                                        quantity: 1,
-                                        title: "Curs de baza 1-3D"
-                                    })}
                                     className="flex items-center justify-center bg-black text-gray-600 rounded px-4 py-2 hover:bg-gray-700">
                                     <i className='bx bxs-cart'></i> 🛒
                                 </button>
                                 <button
-                                    onClick={() => addToFavorites({
-                                        description: "description",
-                                        id: "1",
-                                        link: "#",
-                                        price: "2000",
-                                        quantity: 1,
-                                        title: "Curs de baza 1-3D"
-                                    })}
                                     className="flex items-center justify-center bg-red-200 text-gray-600 rounded px-4 py-2 hover:bg-pink-300"
                                 >
                                     <i className='bx bxs-heart'></i> ❤️

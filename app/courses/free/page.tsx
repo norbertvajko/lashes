@@ -4,8 +4,6 @@ import React from 'react';
 import freeImage from "../../../assets/images/Curs_Gratis.jpeg";
 import { useRouter } from 'next/navigation';
 import { RatingReviews } from '@/components/general/rating-reviews';
-import { useCart } from '@/context/cart-context';
-import { useFavorites } from '@/context/favorites-context';
 
 const Breadcrumb: React.FC = () => {
     const router = useRouter();
@@ -34,8 +32,6 @@ const Breadcrumb: React.FC = () => {
 };
 
 const FreeCourse = () => {
-    const { addToCart } = useCart();
-    const { addToFavorites } = useFavorites();
 
     const initialPoints = [
         "📝Vei învăța elementele de bază ale aplicării extensiilor de gene, doar la suprafață, pentru a înțelege mai bine despre ce este vorba în această meserie. ",

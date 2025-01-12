@@ -1,10 +1,7 @@
 import { BackButton } from "@/components/general/back-button";
 import CommandsSection from "../_components/comments-sections";
-import { currentUser } from "@/lib/auth";
 
 const BlogPostPage = async ({ slug }: any) => {
-
-    const user = await currentUser();
 
     return (
         <div className="max-w-screen-lg mx-auto">

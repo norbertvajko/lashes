@@ -4,8 +4,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import standarModuleImg from "../../../assets/images/Curs_Modul_Standard.jpg";
 import { useRouter } from 'next/navigation';
 import { RatingReviews } from '@/components/general/rating-reviews';
-import { useCart } from '@/context/cart-context';
-import { useFavorites } from '@/context/favorites-context';
 
 interface ModalProps {
     isOpen: boolean;      // Determines if the modal is open or not
@@ -57,9 +55,6 @@ const Breadcrumb: React.FC = () => {
 const StandardCourse = () => {
 
     const [showModal, setShowModal] = useState<boolean>(false);
-
-    const { addToCart } = useCart();
-    const { addToFavorites } = useFavorites();
 
     const handleOpenModal = () => setShowModal(true);
     const handleCloseModal = () => setShowModal(false);
@@ -202,26 +197,10 @@ const StandardCourse = () => {
                                     <i className='bx bxs-zap'></i> Cumpara acum 🔥
                                 </button>
                                 <button
-                                    onClick={() => addToCart({
-                                        description: "description",
-                                        id: "1",
-                                        link: "#",
-                                        price: "2000",
-                                        quantity: 1,
-                                        title: "Curs de baza 1-3D"
-                                    })}
                                     className="flex items-center justify-center bg-black text-gray-600 rounded px-4 py-2 hover:bg-gray-700">
                                     <i className='bx bxs-cart'></i> 🛒
                                 </button>
                                 <button
-                                    onClick={() => addToFavorites({
-                                        description: "description",
-                                        id: "1",
-                                        link: "#",
-                                        price: "2000",
-                                        quantity: 1,
-                                        title: "Curs de baza 1-3D"
-                                    })}
                                     className="flex items-center justify-center bg-red-200 text-gray-600 rounded px-4 py-2 hover:bg-pink-300"
                                 >
                                     <i className='bx bxs-heart'></i> ❤️

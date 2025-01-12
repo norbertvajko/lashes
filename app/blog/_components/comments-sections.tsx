@@ -2,9 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { useCurrentUser } from '@/hooks/use-current-user';
+
 import { usePathname } from 'next/navigation';
 import Loading from '../loading';
+import { useSession } from '@clerk/nextjs';
 
 interface Comment {
     id: string;
@@ -22,10 +23,11 @@ const CommandsSection = () => {
     const [comments, setComments] = useState<Comment[]>([]);
     const [totalComments, setTotalComments] = useState<number>(0);
     const [loading, setLoading] = useState<boolean>(false); // State to track loading status
-    const user = useCurrentUser();
     const [isHovered, setIsHovered] = useState(false);
     const pathname = usePathname();
     const blogPostTitle = pathname.slice(pathname.indexOf('/blog/') + 6);
+
+    const session = useSession();
 
     useEffect(() => {
         fetchComments();
@@ -63,7 +65,7 @@ const CommandsSection = () => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ content: comment, userId: user?.user?.id, blogPostTitle }),
+                body: JSON.stringify({ content: comment, userId: session.session?.user?.id, blogPostTitle }),
             });
 
             if (!response.ok) {
@@ -130,14 +132,14 @@ const CommandsSection = () => {
                             Comentariul tau
                         </label>
                         <textarea
-                            style={!user?.user ? {cursor: "not-allowed"} : {cursor: "text"}}
+                            style={!session.session?.user ? { cursor: "not-allowed" } : { cursor: "text" }}
                             id="comment"
                             className="px-0 w-full text-sm text-gray-900 border-0 focus:ring-0 focus:outline-none dark:text-white dark:placeholder-gray-400 dark:bg-gray-800"
                             placeholder="Lasa un comentariu..."
                             required
                             value={comment}
                             onChange={(e) => setComment(e.target.value)}
-                            disabled={!user?.user}
+                            disabled={!session.session?.user}
                         ></textarea>
                     </div>
                     <div
@@ -146,14 +148,14 @@ const CommandsSection = () => {
                     >
                         <Button
                             variant={'primary'}
-                            disabled={!user?.user}
+                            disabled={!session?.session?.user}
                             type="submit"
-                            className="inline-flex items-center py-2.5 px-4 text-xs font-medium text-center text-white bg-black rounded-lg focus:ring-4 focus:ring-primary-200 dark:focus:ring-primary-900 hover:bg-primary-800"
+                            className="inline-flex items-center py-2.5 px-4 text-xs font-medium text-center text-white bg-black rounded-lg focus:ring-4 focus:ring-primary-200 dark:focus:ring-primary-900 hover:bg-primary-800 focus:outline-none"
                         >
                             Posteaza comentariu
                         </Button>
                     </div>
-                    {!user?.user && isHovered && (
+                    {!session?.session?.user && isHovered && (
                         <div className="b-3 sm:pb-0 block sm:absolute bg-black opacity-90 text-white rounded-sm shadow-md mt-2">
                             <p className="px-4 py-2">
                                 Trebuie sa fii autentificat pentru a putea adauga comentarii!

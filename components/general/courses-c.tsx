@@ -35,9 +35,9 @@ export const HeroCard: React.FC<{
           <div className="text-white">{date}</div>
           <a
             href={link}
-            className="text-white border border-white px-4 py-2 rounded-md hover:bg-white hover:text-gray-800 transition"
+            className="text-white border border-white px-1 py-1 md:px-4 md:py-2 rounded-md hover:bg-white hover:text-gray-800 transition"
           >
-            📚Ce vei învăța la curs ?
+            📚Ce vei învăța la curs
           </a>
         </div>
       </div>

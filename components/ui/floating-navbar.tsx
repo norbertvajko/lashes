@@ -11,13 +11,10 @@ import { cn } from "@/utils/cn";
 import { FavoritesButton } from "../general/favorites-button";
 import { Separator } from "@/components/ui/separator";
 import { CartButton } from "../general/cart-button";
-import { UserButton } from "../auth/user-button";
-import { useSession } from "next-auth/react";
-import { useCart } from "@/context/cart-context";
-import { useFavorites } from "@/context/favorites-context";
-import { LoginButton } from "../auth/login-button";
 import Link from "next/link";
 import useWindowWidth from "@/hooks/use-window-width";
+import { LoginButton } from "../general/login-button";
+import { SignedIn, UserButton, useSession } from "@clerk/nextjs";
 
 export const FloatingNav = ({
   navItems,
@@ -36,10 +33,8 @@ export const FloatingNav = ({
 
   const { isMobile } = useWindowWidth();
 
-  const session = useSession();
-
-  const { itemsLength: cartItemsLength } = useCart();
-  const { itemsLength: favoriteItemsLength } = useFavorites();
+  const user = useSession();
+  const isLoggedIn = user.isSignedIn;
 
   useMotionValueEvent(scrollYProgress, "change", (current) => {
     if (typeof current === "number") {
@@ -103,22 +98,15 @@ export const FloatingNav = ({
             </Link>
           ))}
         </ul>
-        {session?.data?.user?.name && session?.data?.user?.name !== "" ? (
+        {isLoggedIn ? (
           <div className="flex flex-row gap-2 mt-[2px] items-center">
-            <Separator orientation="vertical" className="h-6 text-gray-400 ml-2" />
-            <div className="flex">
-              <FavoritesButton favCount={favoriteItemsLength} className="m-0 p-0" />
-              <CartButton itemsCount={cartItemsLength} className="m-0 p-0" />
-            </div>
-            <Separator orientation="vertical" className="h-6 text-gray-400 ml-2" />
-            <UserButton />
+            <Separator orientation="vertical" className="h-6 text-gray-400" />
+            <SignedIn>
+              <UserButton  />
+            </SignedIn>
           </div>
         ) : (
-          <LoginButton mode={"modal"} asChild>
-            <button className="text-white bg-gradient-to-br from-pink-500 to-orange-400 hover:bg-gradient-to-bl font-medium rounded-full text-sm px-5 py-2 text-center">
-              Login
-            </button>
-          </LoginButton>
+          <LoginButton />
         )}
       </motion.div>
     </AnimatePresence>
