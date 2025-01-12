@@ -8,9 +8,7 @@ import {
   useMotionValueEvent,
 } from "framer-motion";
 import { cn } from "@/utils/cn";
-import { FavoritesButton } from "../general/favorites-button";
 import { Separator } from "@/components/ui/separator";
-import { CartButton } from "../general/cart-button";
 import Link from "next/link";
 import useWindowWidth from "@/hooks/use-window-width";
 import { LoginButton } from "../general/login-button";
