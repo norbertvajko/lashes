@@ -38,16 +38,18 @@ export const CategoriesBreadcrumb = (props: CategoriesBreadcrumbProps) => {
             }
         };
 
-        if (breadcrumbRef.current) {
-            breadcrumbRef.current.addEventListener('wheel', handleScroll);
+        const breadcrumbElement = breadcrumbRef.current; // Copiem valoarea ref într-o variabilă locală
+
+        if (breadcrumbElement) {
+            breadcrumbElement.addEventListener('wheel', handleScroll);
         }
 
         return () => {
-            if (breadcrumbRef.current) {
-                breadcrumbRef.current.removeEventListener('wheel', handleScroll);
+            if (breadcrumbElement) {
+                breadcrumbElement.removeEventListener('wheel', handleScroll);
             }
         };
-    }, []);
+    }, []); // Dependențele rămân neschimbate, deoarece ref-ul este deja stabilit la început
 
     return (
         <div className="overflow-x-auto" style={{ WebkitOverflowScrolling: 'touch' }} ref={breadcrumbRef}>

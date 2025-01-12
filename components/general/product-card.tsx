@@ -65,7 +65,7 @@ export const ProductCard = (props: ProductCardProps) => {
                         <span>{promoPrice}% REDUCERE</span>
                     </Badge>
                 ) : (null)}
-                <img
+                <Image
                     className="object-contain w-full hover:scale-110 cursor-pointer p-4"
                     src={images?.[0] ?? ''}
                     alt="product-image"

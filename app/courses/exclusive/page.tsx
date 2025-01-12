@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import exclusiveCourseImg from "../../../assets/images/Curs_Modul_Exclusiv.jpg.jpg";
 import { useRouter } from 'next/navigation';
 import { RatingReviews } from '@/components/general/rating-reviews';
+import Image from 'next/image';
 
 interface ModalProps {
     isOpen: boolean;      // Determines if the modal is open or not
@@ -102,7 +103,7 @@ const ExclusiveCourse = () => {
                     <div className="w-full md:w-1/2">
                         <div className="relative w-full">
                             <div className="max-h-[480px] bg-gray-200">
-                                <img
+                                <Image
                                     src={exclusiveCourseImg.src}
                                     alt=""
                                     className="w-full h-full object-contain rounded-md"

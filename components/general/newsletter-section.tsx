@@ -4,6 +4,7 @@ import { FaCalendarCheck } from "react-icons/fa6"
 import { HiOutlineHandRaised } from "react-icons/hi2";
 import { Button } from "../ui/button"
 import { useIsMobile } from "@/hooks/use-is-mobile";
+import Image from "next/image";
 
 export const NewsletterSection = async () => {
     const isMobile = useIsMobile();
@@ -28,7 +29,7 @@ export const NewsletterSection = async () => {
                 ) : ""}
                 <div className="flex flex-col items-end justify-center mt-4 md:flex-row md:justify-around md:pt-32 md:mt-0">
                     <div className="relative flex-wrap hidden m-4 bg-white rounded-md shadow-md md:flex">
-                        <img
+                        <Image
                             className="rounded-md"
                             src="../assets/images/salon-ll-lashes.jpeg"
                             alt="salon"

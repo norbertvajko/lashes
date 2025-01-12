@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import standarModuleImg from "../../../assets/images/Curs_Modul_Standard.jpg";
 import { useRouter } from 'next/navigation';
 import { RatingReviews } from '@/components/general/rating-reviews';
+import Image from 'next/image';
 
 interface ModalProps {
     isOpen: boolean;      // Determines if the modal is open or not
@@ -100,7 +101,7 @@ const StandardCourse = () => {
                     <div className="w-full md:w-1/2">
                         <div className="relative w-full">
                             <div className="max-h-[480px] bg-gray-200">
-                                <img
+                                <Image
                                     src={standarModuleImg.src}
                                     alt=""
                                     className="w-full h-full object-contain rounded-md"

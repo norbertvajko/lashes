@@ -1,7 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { FaPlus } from "react-icons/fa6";
-import { FaMinus } from "react-icons/fa6";
 import { IoCloseCircleSharp } from "react-icons/io5";
 import { FaCartPlus } from "react-icons/fa6";
 import Image from "next/image";
@@ -47,7 +45,7 @@ export const CartItem = (props: CartItemProps) => {
     return (
         <div className="flex flex-row">
             <div className="relative">
-                <img
+                <Image
                     className={quantity ? "rounded-md w-[109px] h-[62px] object-contain" : "object-contain rounded-md w-[109px] h-[62px]"}
                     src={image || ""}
                     alt={"course-item-img"}

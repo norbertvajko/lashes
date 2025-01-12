@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { usePathname } from 'next/navigation';
 import Loading from '../loading';
 import { useSession } from '@clerk/nextjs';
 import { FaSpinner } from 'react-icons/fa'; // Importă un icon de loading
+import Image from 'next/image';
 
 interface Comment {
     id: string;
@@ -29,11 +30,7 @@ const CommandsSection = () => {
     const blogPostTitle = pathname.slice(pathname.indexOf('/blog/') + 6);
     const session = useSession();
 
-    useEffect(() => {
-        fetchComments();
-    }, [blogPostTitle]);
-
-    const fetchComments = async () => {
+    const fetchComments = useCallback(async () => {
         setLoading(true);
         try {
             const response = await fetch(`/api/user/get-comments?blogPostTitle=${encodeURIComponent(blogPostTitle)}`, {
@@ -47,7 +44,7 @@ const CommandsSection = () => {
             }
             const data: Comment[] = await response.json();
             setComments(data);
-
+    
             const filteredComments = data.filter((comment: Comment) => comment.blogPostTitle === blogPostTitle);
             setTotalComments(filteredComments.length);
         } catch (error) {
@@ -55,7 +52,11 @@ const CommandsSection = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [blogPostTitle]); 
+    
+    useEffect(() => {
+        fetchComments();
+    }, [blogPostTitle, fetchComments]); 
 
     const handleSubmit = async (event: any) => {
         event.preventDefault();
@@ -101,7 +102,7 @@ const CommandsSection = () => {
                                     <footer className="flex justify-between items-center mb-2">
                                         <div className="flex items-center">
                                             <p className="inline-flex items-center mr-3 text-sm text-gray-900 dark:text-white font-semibold">
-                                                <img
+                                                <Image
                                                     className="mr-2 w-6 h-6 rounded-full"
                                                     src={comment.user.image ?? "https://t3.ftcdn.net/jpg/03/58/90/78/360_F_358907879_Vdu96gF4XVhjCZxN2kCG0THTsSQi8IhT.jpg"}
                                                     alt="Profile"

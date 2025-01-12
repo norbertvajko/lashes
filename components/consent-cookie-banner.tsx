@@ -41,7 +41,7 @@ export default function CookieConsentBanner({ demo = false, onAcceptCallback = (
         }, COOKIE_BANNER_DELAY);
 
         return () => clearInterval(interval);
-    }, []);
+    }, [isOpen]);
 
     return (
         <>

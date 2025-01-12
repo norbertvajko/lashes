@@ -83,7 +83,7 @@ export const AutoComplete = ({
         setInputValue("");
         // setInputValue(selected?.label)
         onBlur?.(); // Call onBlur prop if provided
-    }, [selected, onBlur]);
+    }, [onBlur]);
 
     const handleSelectOption = useCallback(
         (selectedOption: Option) => {

@@ -1,11 +1,10 @@
 "use client";
 
 import { Button } from "@/components/ui/button"
-// import logo from "../../assets/images/logo-up.png";
 import logo from "../../assets/images/logo-white.png";
-// import logo from "../../assets/images/logo.png";
 import { useRouter} from "next/navigation";
 import { APP_ROUTES } from "@/constants/routes";
+import Image from "next/image";
 
 
 export const LogoComponent = () => {
@@ -17,7 +16,7 @@ export const LogoComponent = () => {
 
     return (
         <Button variant={"icon"} className="p-0" onClick={handleLogoClick}>
-            <img
+            <Image
                 onClick={handleLogoClick}
                 src={logo.src}
                 alt={"logo"}

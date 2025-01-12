@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 const BlogPost = ({ post }: any) => {
     const router = useRouter();
@@ -23,7 +24,7 @@ const BlogPost = ({ post }: any) => {
                 }}
                 className="block w-full" 
             >
-                <img
+                <Image
                     alt={post.title}
                     className="object-cover w-full h-52 dark:bg-gray-500 rounded-t-lg" 
                     src={post.imgSrc}

@@ -4,6 +4,7 @@ import React from 'react';
 import expressModuleImg from "../../../assets/images/Curs_Modul_Express.jpg";
 import { useRouter } from 'next/navigation';
 import { RatingReviews } from '@/components/general/rating-reviews';
+import Image from 'next/image';
 
 const Breadcrumb: React.FC = () => {
     const router = useRouter();
@@ -45,7 +46,7 @@ const ExpressCourse = () => {
                     <div className="w-full md:w-1/2">
                         <div className="relative w-full">
                             <div className="max-h-[480px] bg-gray-200">
-                                <img
+                                <Image
                                     src={expressModuleImg.src}
                                     alt=""
                                     className="w-full h-full object-contain rounded-md"

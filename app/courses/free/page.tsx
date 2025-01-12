@@ -4,6 +4,7 @@ import React from 'react';
 import freeImage from "../../../assets/images/Curs_Gratis.jpeg";
 import { useRouter } from 'next/navigation';
 import { RatingReviews } from '@/components/general/rating-reviews';
+import Image from 'next/image';
 
 const Breadcrumb: React.FC = () => {
     const router = useRouter();
@@ -46,7 +47,7 @@ const FreeCourse = () => {
                     <div className="w-full md:w-1/2">
                         <div className="relative w-full">
                             <div className="max-h-[480px] bg-gray-200">
-                                <img
+                                <Image
                                     src={freeImage.src}
                                     alt=""
                                     className="w-full h-full object-contain rounded-md"
