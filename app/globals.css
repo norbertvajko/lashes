@@ -346,6 +346,10 @@ body,
   z-index: 99999999;
 }
 
+.cl-modalBackdrop {
+  z-index: 999999999;
+}
+
 @media (max-width: 768px) { 
   .cl-userButtonPopoverCard {
     margin-left: 16px;
