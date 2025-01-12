@@ -1,7 +1,7 @@
 "use client";
 
 import { useSidebar } from "@/hooks/use-side-bar";
-import { User, Store, Settings, UserCog, CombineIcon, BookOpen, FolderCog, MessageSquareHeart, Contact, ListOrdered } from "lucide-react";
+import { User, Settings, BookOpen, FolderCog, MessageSquareHeart, Contact, ListOrdered } from "lucide-react";
 import { type LucideIcon } from "lucide-react";
 import { usePathname } from "next/navigation";
 import React, { useEffect, useMemo, useState } from "react";
@@ -14,10 +14,8 @@ import {
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 import Link from "next/link";
-import { APP_ROUTES, APP_ROUTES_ADMIN, APP_ROUTES_USER } from "@/constants/routes";
-import { useCurentUserRole } from "@/hooks/use-current-user-role";
-import { UserRole } from "@prisma/client";
-import { useCurrentUser } from "@/hooks/use-current-user";
+import {  APP_ROUTES_USER } from "@/constants/routes";
+import { useSession } from "@clerk/nextjs";
 
 export interface NavItem {
     title: string;
@@ -89,8 +87,7 @@ interface SideBarProps {
 export const SideBar: React.FC<SideBarProps> = (props: SideBarProps) => {
     const { items, setOpen, className } = props;
 
-    const currentUserRole = useCurentUserRole();
-    const { user } = useCurrentUser();
+    const user  = useSession();
 
     const path = usePathname();
 
@@ -107,40 +104,10 @@ export const SideBar: React.FC<SideBarProps> = (props: SideBarProps) => {
         }
     }, [isOpen]);
 
-    const isAdmin = () => currentUserRole === UserRole.ADMIN;
-    const adminItem: NavItem = {
-        title: "Admin",
-        icon: UserCog,
-        href: APP_ROUTES_ADMIN.ADMIN,
-        color: "text-destructive",
-        isChidren: true,
-        children: [
-            {
-                title: "Dashboard",
-                icon: CombineIcon,
-                color: "text-sky-800",
-                href: APP_ROUTES_ADMIN.ADMIN,
-            },
-            {
-                title: "Scrape",
-                icon: CombineIcon,
-                color: "text-green-800",
-                href: APP_ROUTES_ADMIN.SCRAPE,
-            },
-        ],
-    };
-    const updatedNavItems = useMemo(() => {
-        if (!user) {
-            return [...NavItems];
-        }
-
-        return isAdmin() ? [...NavItemsUser, adminItem] : NavItemsUser;
-    }, [adminItem, isAdmin]);
-
 
     return (
         <div className={`mt-[30px] lg:mt-[78px] lg:space-y-3 lg:left-0 w-[220px] lg:h-full lg:border-r-2 lg:fixed space-y-2 lg:px-3 lg:pt-4 ${className ?? ''}`}>
-            {updatedNavItems.map((item) =>
+            {items.map((item) =>
                 item.isChidren ? (
                     <Accordion
                         type="single"

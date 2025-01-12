@@ -5,11 +5,12 @@ import { AlignLeft } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { NavItems, NavItemsUser, SideBar } from "./side-bar";
 import { cn } from "@/lib/utils";
-import { useCurrentUser } from "@/hooks/use-current-user";
+
 import { LogoComponent } from "./logo-component";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { APP_ROUTES_AUTH } from "@/constants/routes";
+import { useSession } from "@clerk/nextjs";
 
 interface MobileSideBarProps {
     className?: string;
@@ -19,7 +20,7 @@ export const MobileSidebar = (props: MobileSideBarProps) => {
     const { className } = props;
 
     const [open, setOpen] = useState(false);
-    const { user } = useCurrentUser();
+    const user = useSession();
     const router = useRouter();
 
     return (
@@ -31,7 +32,7 @@ export const MobileSidebar = (props: MobileSideBarProps) => {
                     </div>
                 </SheetTrigger>
                 <SheetContent side="left" className="w-72 z-[9999]">
-                    {user ? <SideBar items={NavItemsUser} setOpen={setOpen} /> :
+                    {user?.isSignedIn ? <SideBar items={NavItemsUser} setOpen={setOpen} /> :
                         <>
                             <div className="flex flex-col w-full pt-8 gap-2 text-center">
                                 <h3 className="text-sm font-semibold">Autentifica-te in contul tau si ai control deplin asuptra ofertelor!</h3>
