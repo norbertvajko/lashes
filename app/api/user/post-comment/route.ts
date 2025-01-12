@@ -1,40 +1,47 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
-import { getAuth } from '@clerk/nextjs/server'; // Importă funcția pentru autentificare
+import { db } from '@/lib/db'; 
+import { currentUser } from '@clerk/nextjs/server'; // Import Clerk's currentUser function
 
 export async function POST(request: NextRequest) {
   try {
-    // Obține sesiunea utilizatorului din Clerk
-    const { userId } = getAuth(request); // Extrage userId din sesiunea Clerk
+    // Extract the current user from Clerk using currentUser
+    const user = await currentUser(); // This gets the current authenticated user from Clerk
 
-    if (!userId) {
-      // Dacă nu există un userId, înseamnă că utilizatorul nu este autentificat
+    if (!user) {
+      // If the user is not authenticated, return unauthorized response
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Verifică dacă utilizatorul există deja în baza de date
-    let user = await db.user.findUnique({
-      where: { clerkUserId: userId }, // presupunând că ai un câmp `clerkUserId` în modelul User
-    });
-
-    // Preia datele din request (comentariul și blogPostTitle)
+    // Extract the required data from the request body
     const { content, blogPostTitle } = await request.json();
 
     if (!content || !blogPostTitle) {
-      // Verifică dacă toate câmpurile necesare au fost trimise
+      // Check if content and blogPostTitle are provided in the request
       return NextResponse.json({ error: 'Missing content or blogPostTitle' }, { status: 400 });
     }
 
-    // Crează un nou comentariu în baza de date
+    // Check if the user exists in the database by clerkId
+    const existingUser = await db.user.findUnique({
+      where: {
+        clerkUserId: user.id, // Use the Clerk user ID to find the user in your database
+      },
+    });
+
+    if (!existingUser) {
+      // If the user doesn't exist, return an error
+      return NextResponse.json({ error: 'User not found in database' }, { status: 404 });
+    }
+
+    // Create a new comment, regardless of whether one already exists
     const newComment = await db.blogComment.create({
       data: {
         content,
-        userId: userId, // Folosește id-ul utilizatorului creat sau găsit
+        userId: existingUser.id, // Use the userId from the database
         blogPostTitle,
       },
     });
 
-    return NextResponse.json(newComment, { status: 201 });
+    return NextResponse.json(newComment, { status: 201 }); // Return the newly created comment
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: 'Failed to create comment' }, { status: 500 });

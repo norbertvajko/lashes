@@ -2,10 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-
 import { usePathname } from 'next/navigation';
 import Loading from '../loading';
 import { useSession } from '@clerk/nextjs';
+import { FaSpinner } from 'react-icons/fa'; // Importă un icon de loading
 
 interface Comment {
     id: string;
@@ -23,10 +23,10 @@ const CommandsSection = () => {
     const [comments, setComments] = useState<Comment[]>([]);
     const [totalComments, setTotalComments] = useState<number>(0);
     const [loading, setLoading] = useState<boolean>(false); // State to track loading status
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false); // Track if submitting a comment
     const [isHovered, setIsHovered] = useState(false);
     const pathname = usePathname();
     const blogPostTitle = pathname.slice(pathname.indexOf('/blog/') + 6);
-
     const session = useSession();
 
     useEffect(() => {
@@ -59,6 +59,7 @@ const CommandsSection = () => {
 
     const handleSubmit = async (event: any) => {
         event.preventDefault();
+        setIsSubmitting(true); // Set submitting to true when the comment is being posted
         try {
             const response = await fetch('/api/user/post-comment', {
                 method: 'POST',
@@ -76,6 +77,8 @@ const CommandsSection = () => {
             setComment('');
         } catch (error) {
             console.error('Error posting comment:', error);
+        } finally {
+            setIsSubmitting(false); // Set submitting to false after the request is completed
         }
     };
 
@@ -139,7 +142,7 @@ const CommandsSection = () => {
                             required
                             value={comment}
                             onChange={(e) => setComment(e.target.value)}
-                            disabled={!session.session?.user}
+                            disabled={!session.session?.user || isSubmitting} // Disable textarea when submitting
                         ></textarea>
                     </div>
                     <div
@@ -148,11 +151,15 @@ const CommandsSection = () => {
                     >
                         <Button
                             variant={'primary'}
-                            disabled={!session?.session?.user}
+                            disabled={!session?.session?.user || isSubmitting} // Disable button during submission
                             type="submit"
                             className="inline-flex items-center py-2.5 px-4 text-xs font-medium text-center text-white bg-black rounded-lg focus:ring-4 focus:ring-primary-200 dark:focus:ring-primary-900 hover:bg-primary-800 focus:outline-none"
                         >
-                            Posteaza comentariu
+                            {isSubmitting ? (
+                                <FaSpinner className="animate-spin mr-2" /> // Show spinning icon when submitting
+                            ) : (
+                                'Posteaza comentariu'
+                            )}
                         </Button>
                     </div>
                     {!session?.session?.user && isHovered && (

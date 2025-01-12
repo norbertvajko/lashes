@@ -10,6 +10,7 @@ import {
   ClerkProvider,
 } from '@clerk/nextjs'
 import { roRO } from '@clerk/localizations'
+import { localization } from "@/data/clerk-localization";
 
 const inter = Montserrat({ weight: "400", preload: false });
 
@@ -22,6 +23,11 @@ export const metadata: Metadata = {
   manifest: '/site.webmanifest',
 };
 
+const roLocalization = {
+  ...roRO,
+  ...localization,
+}
+
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -29,7 +35,7 @@ export default async function RootLayout({
 }>) {
 
   return (
-    <ClerkProvider localization={roRO}>
+    <ClerkProvider localization={roLocalization} >
       <html lang="en" suppressHydrationWarning={true}>
         <body suppressHydrationWarning={true} className={`${inter.className} bg-slate-50 dark:bg-[#09090B]`} >
           <NextSSRPlugin
