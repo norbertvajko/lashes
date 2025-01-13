@@ -37,6 +37,8 @@ const ExpressCourse = () => {
         "✅Scopul meu este să îți ofer o privire de ansamblu, astfel încât să îți poți forma o opinie informată și să descoperi dacă ai o înclinație spre acest domeniu sau NU❌"
     ];
 
+    const router = useRouter();
+
     return (
         <div className="flex flex-col md:flex-row items-center justify-center sm:mt-0 mb-7">
             <div className="w-full max-w-5xl">
@@ -118,7 +120,12 @@ const ExpressCourse = () => {
 
                             {/* Button Group */}
                             <div className="flex gap-4 flex-wrap">
-                                <button className="flex items-center justify-center bg-gradient-to-r from-red-500 to-yellow-500 text-white font-bold rounded px-4 py-2 hover:from-red-600 hover:to-yellow-600">
+                                <button 
+                                className="flex items-center justify-center bg-gradient-to-r from-red-500 to-yellow-500 text-white font-bold rounded px-4 py-2 hover:from-red-600 hover:to-yellow-600"
+                                onClick={() => {
+                                    router.push('https://buy.stripe.com/6oE9AD64c7fD5yw4gi');
+                                }}
+                                >
                                     <i className='bx bxs-zap'></i> Cumpara acum 🔥
                                 </button>
                                 <button

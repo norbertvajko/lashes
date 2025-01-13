@@ -59,6 +59,8 @@ const ExclusiveCourse = () => {
     const handleOpenModal = () => setShowModal(true);
     const handleCloseModal = () => setShowModal(false);
 
+    const router = useRouter();
+
     const initialPoints = [
         "Introducere în lumea extensiilor de gene",
         "Structura genelor naturale",
@@ -195,7 +197,12 @@ const ExclusiveCourse = () => {
 
                             {/* Button Group */}
                             <div className="flex gap-4 flex-wrap">
-                                <button className="flex items-center justify-center bg-gradient-to-r from-red-500 to-yellow-500 text-white font-bold rounded px-4 py-2 hover:from-red-600 hover:to-yellow-600">
+                                <button
+                                    onClick={() => {
+                                        router.push('https://buy.stripe.com/7sI9AD8ck2Zn4us004');
+                                    }}
+                                    className="flex items-center justify-center bg-gradient-to-r from-red-500 to-yellow-500 text-white font-bold rounded px-4 py-2 hover:from-red-600 hover:to-yellow-600"
+                                >
                                     <i className='bx bxs-zap'></i> Cumpara acum 🔥
                                 </button>
                                 <button
