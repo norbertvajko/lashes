@@ -1,9 +1,14 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import exclusiveCourseImg from "../../../assets/images/Curs_Modul_Exclusiv.jpg.jpg";
 import { useRouter } from 'next/navigation';
 import { RatingReviews } from '@/components/general/rating-reviews';
+import { loadStripe } from '@stripe/stripe-js'
+
+loadStripe(
+    process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
+)
 
 interface ModalProps {
     isOpen: boolean;      // Determines if the modal is open or not
@@ -53,7 +58,6 @@ const Breadcrumb: React.FC = () => {
 };
 
 const ExclusiveCourse = () => {
-
     const [showModal, setShowModal] = useState<boolean>(false);
 
     const handleOpenModal = () => setShowModal(true);
@@ -95,6 +99,18 @@ const ExclusiveCourse = () => {
         "BONUS: două casete cadou separat de kit 🎁 pentru un boost la perfecționarea voastră ✨",
         "DIPLOMĂ ACREDITATĂ"
     ];
+
+    useEffect(() => {
+        const query = new URLSearchParams(window.location.search);
+        if(query.get('success')) {
+            console.log('Order placed!')
+        }
+        if(query.get('canceled')) {
+            console.log(
+                'order canceled'
+            )
+        }
+    }, [])
 
     return (
         <div className="flex flex-col md:flex-row items-center justify-center sm:mt-0 mb-7">
@@ -194,27 +210,30 @@ const ExclusiveCourse = () => {
                             </div>
 
                             <hr className="my-4 border-gray-300" />
-
-                            {/* Button Group */}
+                            {/* // continue */}
+                            {/* <form encType="application/json" action="/api/stripe/checkout-session" method='POST'> */}
+                                <div className="flex gap-4 flex-wrap">
                             <div className="flex gap-4 flex-wrap">
                                 <button
                                     onClick={() => {
-                                        router.push('https://buy.stripe.com/7sI9AD8ck2Zn4us004');
+                                        router.push('https://buy.stripe.com/5kA6orcsA8jH7GE3cd');
                                     }}
                                     className="flex items-center justify-center bg-gradient-to-r from-red-500 to-yellow-500 text-white font-bold rounded px-4 py-2 hover:from-red-600 hover:to-yellow-600"
                                 >
                                     <i className='bx bxs-zap'></i> Cumpara acum 🔥
                                 </button>
-                                <button
-                                    className="flex items-center justify-center bg-black text-gray-600 rounded px-4 py-2 hover:bg-gray-700">
-                                    <i className='bx bxs-cart'></i> 🛒
-                                </button>
-                                <button
-                                    className="flex items-center justify-center bg-red-200 text-gray-600 rounded px-4 py-2 hover:bg-pink-300"
-                                >
-                                    <i className='bx bxs-heart'></i> ❤️
-                                </button>
                             </div>
+
+                                    {/* <button
+                                    type='submit'
+                                    role='link'
+                                   
+                                        className="flex items-center justify-center bg-gradient-to-r from-red-500 to-yellow-500 text-white font-bold rounded px-4 py-2 hover:from-red-600 hover:to-yellow-600"
+                                    >
+                                        <i className='bx bxs-zap'></i> Cumpara acum 🔥
+                                    </button> */}
+                                </div>
+                            {/* </form> */}
                         </div>
                     </div>
                 </div>

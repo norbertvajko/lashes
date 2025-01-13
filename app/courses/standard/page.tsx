@@ -197,11 +197,11 @@ const StandardCourse = () => {
                             <div className="flex gap-4 flex-wrap">
                                 <button 
                                     className="flex items-center justify-center bg-gradient-to-r from-red-500 to-yellow-500 text-white font-bold rounded px-4 py-2 hover:from-red-600 hover:to-yellow-600"
-                                    onClick={() => router.push('https://buy.stripe.com/3cseUXaksgQd7GE6or')}
+                                    onClick={() => router.push('https://buy.stripe.com/6oE8wzcsA43r7GEeV0')}
                                     >
                                     <i className='bx bxs-zap'></i> Cumpara acum 🔥
                                 </button>
-                                <button
+                                {/* <button
                                     className="flex items-center justify-center bg-black text-gray-600 rounded px-4 py-2 hover:bg-gray-700">
                                     <i className='bx bxs-cart'></i> 🛒
                                 </button>
@@ -209,7 +209,7 @@ const StandardCourse = () => {
                                     className="flex items-center justify-center bg-red-200 text-gray-600 rounded px-4 py-2 hover:bg-pink-300"
                                 >
                                     <i className='bx bxs-heart'></i> ❤️
-                                </button>
+                                </button> */}
                             </div>
                         </div>
                     </div>
