@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { db } from "@/lib/db";
 import { headers } from "next/headers";
+import { CONST_ADVANCE_PAYMENT_PRICE } from "@/constants/courses/data";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
@@ -71,6 +72,8 @@ export async function POST(request: NextRequest) {
                     productName = product.name;
                 }
 
+                const status = price !== CONST_ADVANCE_PAYMENT_PRICE ? "Plata finalizata" : "Avans platit";
+
                 // Create the order using the product name and totalAmount
                 const order = await db.order.create({
                     data: {
@@ -78,7 +81,7 @@ export async function POST(request: NextRequest) {
                         course: productName,
                         advance: price, // Use the price extracted from line_items
                         total: totalAmount, // Ensure total is a float
-                        status: "Avans platit",
+                        status: status,
                     },
                 });
 

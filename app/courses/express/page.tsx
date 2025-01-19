@@ -9,6 +9,7 @@ import { useSession } from '@clerk/nextjs';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import axios from 'axios';
+import { CONST_ADVANCE_PAYMENT_PRICE, CONST_EXPRESS_COURSE_PRICE } from '@/constants/courses/data';
 
 const Breadcrumb: React.FC = () => {
     const router = useRouter();
@@ -31,7 +32,7 @@ const Breadcrumb: React.FC = () => {
                 Cursuri
             </span>
             <span className="text-sm text-gray-700">/</span>
-            <span className="text-sm font-bold text-gray-700">Curs de baza 1-3D</span>
+            <span className="text-sm font-bold text-gray-700">Modul Express</span>
         </div>
     );
 };
@@ -50,14 +51,13 @@ const ExpressCourse = () => {
     const product: Product = {
         name: "Modul Express",
         image: "https://ll-lashes.ro/assets/images/Curs_Modul_Express.jpg",
-        price: 100000,
+        price: CONST_ADVANCE_PAYMENT_PRICE * 100,
     };
 
     const handlePay = async (product: Product) => {
         setIsLoading(true); // Set loading to true when payment is being processed
 
-        const totalAmount = 300000;
-
+        const totalAmount = CONST_EXPRESS_COURSE_PRICE * 100;
         const payload = {
             ...product,
             totalAmount, // Include the calculated totalAmount
@@ -118,9 +118,11 @@ const ExpressCourse = () => {
                             </div>
 
                             <div className="flex items-center mt-2">
-                                <span className="text-4xl font-bold">3.000 RON</span>
+                                <span className="text-4xl font-bold">
+                                    {new Intl.NumberFormat('ro-RO').format(CONST_EXPRESS_COURSE_PRICE)} RON
+                                </span>
                                 <div className='flex flex-col'>
-                                    <span className="text-lg font-medium line-through text-gray-500 ml-2">3.900 RON</span>
+                                    <span className="text-lg font-medium line-through text-gray-500 ml-2">3.200 RON</span>
                                     <span className="text-xs font-semibold text-gray-500 ml-2">1.000 RON - AVANS</span>
                                 </div>
                             </div>
@@ -164,7 +166,7 @@ const ExpressCourse = () => {
                             <hr className="my-4 border-gray-300" />
                             <Button
                                 onClick={() => {
-                                    if(!session.isSignedIn) {
+                                    if (!session.isSignedIn) {
                                         toast.warning("Trebuie sa fii autentificat pentru a putea achizitiona acest curs")
                                     }
                                     else {

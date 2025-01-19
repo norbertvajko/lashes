@@ -8,6 +8,7 @@ import axios from 'axios';
 import { useSession } from '@clerk/nextjs';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { CONST_ADVANCE_PAYMENT_PRICE, CONST_EXCLUSIVE_COURSE_PRICE } from '@/constants/courses/data';
 
 export type Product = {
     name: string;
@@ -57,7 +58,7 @@ const Breadcrumb: React.FC = () => {
                 Cursuri
             </span>
             <span className="text-sm text-gray-700">/</span>
-            <span className="text-sm font-bold text-gray-700">Curs de baza 1-3D</span>
+            <span className="text-sm font-bold text-gray-700">Modul Exclusive</span>
         </div>
     );
 };
@@ -68,7 +69,6 @@ const ExclusiveCourse = () => {
     const handleOpenModal = () => setShowModal(true);
     const handleCloseModal = () => setShowModal(false);
 
-    const router = useRouter();
     const session = useSession();
 
     const initialPoints = [
@@ -109,7 +109,7 @@ const ExclusiveCourse = () => {
     const product: Product = {
         name: "Modul Exclusiv",
         image: "https://ll-lashes.ro/assets/images/Curs_Modul_Exclusiv.jpg",
-        price: 100000,
+        price: CONST_ADVANCE_PAYMENT_PRICE * 100,
     };
 
     const [isLoading, setIsLoading] = useState(false); // State to track loading status
@@ -117,11 +117,11 @@ const ExclusiveCourse = () => {
     const handlePay = async (product: Product) => {
         setIsLoading(true); // Set loading to true when payment is being processed
 
-        const totalAmount = 500000;
+        const totalAmount = CONST_EXCLUSIVE_COURSE_PRICE * 100;
 
         const payload = {
             ...product,
-            totalAmount, // Include the calculated totalAmount
+            totalAmount,
         };
 
         try {
@@ -167,7 +167,7 @@ const ExclusiveCourse = () => {
                         <div className="bg-white p-4 rounded-md">
                             <Breadcrumb />
 
-                            <h2 className="mt-4 text-2xl font-bold">Curs de baza 1-3D</h2>
+                            <h2 className="mt-4 text-2xl font-bold">Modul Exclusive</h2>
 
                             <div className="flex mt-2 mb-4 items-center">
                                 {Array(5).fill(null).map((_, index) => (
@@ -179,7 +179,9 @@ const ExclusiveCourse = () => {
                             </div>
 
                             <div className="flex items-center mt-2">
-                                <span className="text-4xl font-bold">5.000 RON</span>
+                                <span className="text-4xl font-bold">
+                                    {new Intl.NumberFormat('ro-RO').format(CONST_EXCLUSIVE_COURSE_PRICE)} RON
+                                </span>
                                 <div className='flex flex-col'>
                                     <span className="text-lg font-medium line-through text-gray-500 ml-2">5.500 RON</span>
                                     <span className="text-xs font-semibold text-gray-500 ml-2">1.000 RON - AVANS</span>
@@ -245,7 +247,7 @@ const ExclusiveCourse = () => {
                             <hr className="my-4 border-gray-300" />
                             <Button
                                 onClick={() => {
-                                    if(!session.isSignedIn) {
+                                    if (!session.isSignedIn) {
                                         toast.warning("Trebuie sa fii autentificat pentru a putea achizitiona acest curs")
                                     }
                                     else {
@@ -258,7 +260,7 @@ const ExclusiveCourse = () => {
                                 <i className="bx bxs-zap"></i> Cumpara acum
                             </Button>
                         </div>
-                    
+
                     </div>
                 </div>
             </div>

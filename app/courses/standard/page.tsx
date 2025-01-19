@@ -9,6 +9,7 @@ import { useSession } from "@clerk/nextjs";
 import { toast } from 'sonner';
 import axios from 'axios';
 import { Button } from '@/components/ui/button';
+import { CONST_ADVANCE_PAYMENT_PRICE, CONST_STANDARD_COURSE_PRICE } from '@/constants/courses/data';
 
 interface ModalProps {
     isOpen: boolean;      // Determines if the modal is open or not
@@ -52,13 +53,12 @@ const Breadcrumb: React.FC = () => {
                 Cursuri
             </span>
             <span className="text-sm text-gray-700">/</span>
-            <span className="text-sm font-bold text-gray-700">Curs de baza 1-3D</span>
+            <span className="text-sm font-bold text-gray-700">Modul Standard</span>
         </div>
     );
 };
 
 const StandardCourse = () => {
-
     const [showModal, setShowModal] = useState<boolean>(false);
         const [isLoading, setIsLoading] = useState(false); // State to track loading status
     
@@ -73,13 +73,13 @@ const StandardCourse = () => {
     const product: Product = {
         name: "Modul Standard",
         image: "https://ll-lashes.ro/assets/images/Curs_Modul_Express.jpg",
-        price: 100000,
+        price: CONST_ADVANCE_PAYMENT_PRICE * 100,
     };
 
     const handlePay = async (product: Product) => {
         setIsLoading(true); // Set loading to true when payment is being processed
 
-        const totalAmount = 280000;
+        const totalAmount = CONST_STANDARD_COURSE_PRICE * 100;
 
         const payload = {
             ...product,
@@ -174,9 +174,10 @@ const StandardCourse = () => {
                             </div>
 
                             <div className="flex items-center mt-2">
-                                <span className="text-4xl font-bold">2.800 RON</span>
-                                <div className='flex flex-col'>
-                                    <span className="text-lg font-medium line-through text-gray-500 ml-2">3.500 RON</span>
+                            <span className="text-4xl font-bold">
+                                    {new Intl.NumberFormat('ro-RO').format(CONST_STANDARD_COURSE_PRICE)} RON
+                                </span>                                <div className='flex flex-col'>
+                                    <span className="text-lg font-medium line-through text-gray-500 ml-2">3.800 RON</span>
                                     <span className="text-xs font-semibold text-gray-500 ml-2">1.000 RON - AVANS</span>
                                 </div>
                             </div>

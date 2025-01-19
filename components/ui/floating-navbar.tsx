@@ -131,7 +131,7 @@ export const FloatingNav = ({
                 <UserButton>
                   <UserButton.MenuItems>
                     <UserButton.Link
-                      label="Cursurile mele"
+                      label="Comenzile mele"
                       labelIcon={<IoIosListBox />}
                       href="/user/orders"
                     />

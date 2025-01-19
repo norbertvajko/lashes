@@ -55,7 +55,7 @@ export default function OrdersPage() {
         router.push('/courses');
     };
 
-    const session  = useSession();
+    const session = useSession();
     const isLoggedIn = session.isSignedIn;
 
     // Verificăm dacă utilizatorul nu este logat și îl redirecționăm
@@ -106,7 +106,8 @@ export default function OrdersPage() {
         // Construim payload-ul pentru Stripe
         const payload = {
             name: selectedOrder.course,
-            price: amountInCents, // Pretul rămas de plată în cenți
+            price: amountInCents,
+            totalAmount: Number(selectedOrder.total) * 100
         };
 
         // Creăm sesiunea de checkout pentru restul de plată
@@ -178,7 +179,7 @@ export default function OrdersPage() {
         <div className="min-h-[calc(100vh-260px)] flex flex-col">
             <div className="flex-grow flex justify-center items-center">
                 <div className="w-full pt-[122px] sm:pt-4 max-w-7xl bg-white rounded-lg shadow-lg p-8">
-                    {orders ? <h1 className="text-3xl font-bold mb-8 text-center text-black">Cursurile mele 📚</h1> : <p className="text-2xl pb-6 font-bold text-center text-black">Nici un curs gasit 😔</p>}
+                    {orders ? <h1 className="text-3xl font-bold mb-8 text-center text-black">Comenzile mele</h1> : <p className="text-2xl pb-6 font-bold text-center text-black">Nici un curs gasit 😔</p>}
 
                     {orders ? (
                         <div className="w-full">
@@ -219,7 +220,8 @@ export default function OrdersPage() {
                                                 <span className="block md:hidden font-medium">Total(RON):</span> {order.total}
                                             </div>
                                             <div className="md:table-cell px-6 py-4 text-black">
-                                                <span className="block md:hidden font-medium">Rest plata:</span> {Number(order.total) - Number(order.advance)}
+                                                <span className="block md:hidden font-medium">Rest plata:</span>
+                                                {order.status === "Avans platit" ? Number(order.total) - Number(order.advance) : 0}
                                             </div>
                                             <div className="md:table-cell px-6 py-4 text-black">
                                                 <span className="block md:hidden font-medium">Status:</span> {order.status}
@@ -255,19 +257,21 @@ export default function OrdersPage() {
                                 <p className="mb-2"><strong>Data:</strong> {new Date(selectedOrder.date).toLocaleDateString('ro-RO')}</p>
                                 <p className="mb-2"><strong>Curs:</strong> {selectedOrder.course}</p>
                                 <p className="mb-2"><strong>Avans:</strong> {selectedOrder.advance} RON ✅</p>
-                                <p className="mb-4"><strong>Total:</strong> {selectedOrder.total} RON</p>
-                                <p className="mb-4"><strong>Rest plata:</strong> {Number(selectedOrder.total) - Number(selectedOrder.advance)} RON</p>
+                                <p className="mb-4"><strong>Total:</strong> {selectedOrder.total} RON {selectedOrder.status === "Plata finalizata" ? '✅' : ''}</p>
+                                <p className="mb-4"><strong>Rest plata:</strong> {selectedOrder.status === "Plata finalizata" ? 0 : Number(selectedOrder.total) - Number(selectedOrder.advance)} RON</p>
                                 <p className="mb-4"><strong>Status:</strong> {selectedOrder.status}</p>
 
                                 <div className="text-center flex flex-col gap-2">
-                                    <Button
-                                        variant="primary"
-                                        onClick={handleStatusUpdate}
-                                        className={`bg-black text-white hover:bg-gray-800 `}
-                                    // disabled={!isPaid} // Butonul este dezactivat până când plata este completată
-                                    >
-                                        Plateste diferenta
-                                    </Button>
+                                    {selectedOrder.status !== "Plata finalizata" ? (
+                                        <Button
+                                            variant="primary"
+                                            onClick={handleStatusUpdate}
+                                            className="bg-black text-white hover:bg-gray-800"
+                                        >
+                                            Plateste diferenta
+                                        </Button>
+                                    ) : null}
+
 
                                     <Button variant="outline" onClick={closeModal} className="bg-white text-black">
                                         Închide

@@ -13,9 +13,14 @@ const SuccessPage = () => {
                         <CheckIcon className="h-8 w-8 text-green-500 dark:text-green-400" />
                     </div>
                     <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">Plata efectuata cu succes</h1>
-                    <Button variant={"outline"}>
-                        <Link href="/">Acasa</Link>
-                    </Button>
+                    <div className="flex flex-col gap-2 items-center">
+                        <Button variant={"primary"} className="w-fit">
+                            <Link href="/user/orders">Comenzile mele</Link>
+                        </Button>
+                        <Button variant={"outline"} className="w-fit">
+                            <Link href="/">Acasa</Link>
+                        </Button>
+                    </div>
                 </div>
             </div>
         </React.Fragment>
