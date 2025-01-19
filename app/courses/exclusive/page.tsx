@@ -1,14 +1,19 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import exclusiveCourseImg from "../../../assets/images/Curs_Modul_Exclusiv.jpg.jpg";
 import { useRouter } from 'next/navigation';
 import { RatingReviews } from '@/components/general/rating-reviews';
-import { loadStripe } from '@stripe/stripe-js'
+import axios from 'axios';
+import { useSession } from '@clerk/nextjs';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
-loadStripe(
-    process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
-)
+export type Product = {
+    name: string;
+    image: string;
+    price: number;
+};
 
 interface ModalProps {
     isOpen: boolean;      // Determines if the modal is open or not
@@ -64,6 +69,7 @@ const ExclusiveCourse = () => {
     const handleCloseModal = () => setShowModal(false);
 
     const router = useRouter();
+    const session = useSession();
 
     const initialPoints = [
         "Introducere în lumea extensiilor de gene",
@@ -100,17 +106,44 @@ const ExclusiveCourse = () => {
         "DIPLOMĂ ACREDITATĂ"
     ];
 
-    useEffect(() => {
-        const query = new URLSearchParams(window.location.search);
-        if(query.get('success')) {
-            console.log('Order placed!')
+    const product: Product = {
+        name: "Modul Exclusiv",
+        image: "https://ll-lashes.ro/assets/images/Curs_Modul_Exclusiv.jpg",
+        price: 100000,
+    };
+
+    const [isLoading, setIsLoading] = useState(false); // State to track loading status
+
+    const handlePay = async (product: Product) => {
+        setIsLoading(true); // Set loading to true when payment is being processed
+
+        const totalAmount = 500000;
+
+        const payload = {
+            ...product,
+            totalAmount, // Include the calculated totalAmount
+        };
+
+        try {
+            const res = await axios.post('/api/stripe/checkout', payload, {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+
+            const session = res.data;
+
+            if (session.url) {
+                window.location.href = session.url; // Redirect to Stripe checkout
+            } else {
+                console.error("Failed to create session:", session.error);
+            }
+        } catch (error) {
+            console.error("Error during payment request:", error);
+        } finally {
+            setIsLoading(false); // Reset loading state once the request is complete
         }
-        if(query.get('canceled')) {
-            console.log(
-                'order canceled'
-            )
-        }
-    }, [])
+    };
 
     return (
         <div className="flex flex-col md:flex-row items-center justify-center sm:mt-0 mb-7">
@@ -146,10 +179,10 @@ const ExclusiveCourse = () => {
                             </div>
 
                             <div className="flex items-center mt-2">
-                                <span className="text-4xl font-bold">5000 RON</span>
+                                <span className="text-4xl font-bold">5.000 RON</span>
                                 <div className='flex flex-col'>
-                                    <span className="text-lg font-medium line-through text-gray-500 ml-2">5500 RON</span>
-                                    <span className="text-xs font-semibold text-gray-500 ml-2">1000 RON - AVANS</span>
+                                    <span className="text-lg font-medium line-through text-gray-500 ml-2">5.500 RON</span>
+                                    <span className="text-xs font-semibold text-gray-500 ml-2">1.000 RON - AVANS</span>
                                 </div>
                             </div>
 
@@ -210,31 +243,22 @@ const ExclusiveCourse = () => {
                             </div>
 
                             <hr className="my-4 border-gray-300" />
-                            {/* // continue */}
-                            {/* <form encType="application/json" action="/api/stripe/checkout-session" method='POST'> */}
-                                <div className="flex gap-4 flex-wrap">
-                            <div className="flex gap-4 flex-wrap">
-                                <button
-                                    onClick={() => {
-                                        router.push('https://buy.stripe.com/5kA6orcsA8jH7GE3cd');
-                                    }}
-                                    className="flex items-center justify-center bg-gradient-to-r from-red-500 to-yellow-500 text-white font-bold rounded px-4 py-2 hover:from-red-600 hover:to-yellow-600"
-                                >
-                                    <i className='bx bxs-zap'></i> Cumpara acum 🔥
-                                </button>
-                            </div>
-
-                                    {/* <button
-                                    type='submit'
-                                    role='link'
-                                   
-                                        className="flex items-center justify-center bg-gradient-to-r from-red-500 to-yellow-500 text-white font-bold rounded px-4 py-2 hover:from-red-600 hover:to-yellow-600"
-                                    >
-                                        <i className='bx bxs-zap'></i> Cumpara acum 🔥
-                                    </button> */}
-                                </div>
-                            {/* </form> */}
+                            <Button
+                                onClick={() => {
+                                    if(!session.isSignedIn) {
+                                        toast.warning("Trebuie sa fii autentificat pentru a putea achizitiona acest curs")
+                                    }
+                                    else {
+                                        handlePay(product)
+                                    }
+                                }}
+                                disabled={isLoading}
+                                className="flex items-center justify-center bg-gradient-to-r from-red-500 to-yellow-500 text-white font-bold rounded px-4 py-2 hover:from-red-600 hover:to-yellow-600"
+                            >
+                                <i className="bx bxs-zap"></i> Cumpara acum
+                            </Button>
                         </div>
+                    
                     </div>
                 </div>
             </div>

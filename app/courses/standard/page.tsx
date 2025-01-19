@@ -4,6 +4,11 @@ import React, { useState } from 'react';
 import standarModuleImg from "../../../assets/images/Curs_Modul_Standard.jpg";
 import { useRouter } from 'next/navigation';
 import { RatingReviews } from '@/components/general/rating-reviews';
+import { Product } from '../exclusive/page';
+import { useSession } from "@clerk/nextjs";
+import { toast } from 'sonner';
+import axios from 'axios';
+import { Button } from '@/components/ui/button';
 
 interface ModalProps {
     isOpen: boolean;      // Determines if the modal is open or not
@@ -55,11 +60,52 @@ const Breadcrumb: React.FC = () => {
 const StandardCourse = () => {
 
     const [showModal, setShowModal] = useState<boolean>(false);
+        const [isLoading, setIsLoading] = useState(false); // State to track loading status
+    
 
     const handleOpenModal = () => setShowModal(true);
     const handleCloseModal = () => setShowModal(false);
 
     const router = useRouter();
+
+    const session = useSession();
+
+    const product: Product = {
+        name: "Modul Standard",
+        image: "https://ll-lashes.ro/assets/images/Curs_Modul_Express.jpg",
+        price: 100000,
+    };
+
+    const handlePay = async (product: Product) => {
+        setIsLoading(true); // Set loading to true when payment is being processed
+
+        const totalAmount = 280000;
+
+        const payload = {
+            ...product,
+            totalAmount, // Include the calculated totalAmount
+        };
+
+        try {
+            const res = await axios.post('/api/stripe/checkout', payload, {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+
+            const session = res.data;
+
+            if (session.url) {
+                window.location.href = session.url; // Redirect to Stripe checkout
+            } else {
+                console.error("Failed to create session:", session.error);
+            }
+        } catch (error) {
+            console.error("Error during payment request:", error);
+        } finally {
+            setIsLoading(false); // Reset loading state once the request is complete
+        }
+    };
 
     const initialPoints = [
         "Introducere în lumea extensiilor de gene",
@@ -128,10 +174,10 @@ const StandardCourse = () => {
                             </div>
 
                             <div className="flex items-center mt-2">
-                                <span className="text-4xl font-bold">2000 RON</span>
+                                <span className="text-4xl font-bold">2.800 RON</span>
                                 <div className='flex flex-col'>
-                                    <span className="text-lg font-medium line-through text-gray-500 ml-2">2800 RON</span>
-                                    <span className="text-xs font-semibold text-gray-500 ml-2">1000 RON - AVANS</span>
+                                    <span className="text-lg font-medium line-through text-gray-500 ml-2">3.500 RON</span>
+                                    <span className="text-xs font-semibold text-gray-500 ml-2">1.000 RON - AVANS</span>
                                 </div>
                             </div>
 
@@ -192,25 +238,20 @@ const StandardCourse = () => {
                             </div>
 
                             <hr className="my-4 border-gray-300" />
-
-                            {/* Button Group */}
-                            <div className="flex gap-4 flex-wrap">
-                                <button 
-                                    className="flex items-center justify-center bg-gradient-to-r from-red-500 to-yellow-500 text-white font-bold rounded px-4 py-2 hover:from-red-600 hover:to-yellow-600"
-                                    onClick={() => router.push('https://buy.stripe.com/6oE8wzcsA43r7GEeV0')}
-                                    >
-                                    <i className='bx bxs-zap'></i> Cumpara acum 🔥
-                                </button>
-                                {/* <button
-                                    className="flex items-center justify-center bg-black text-gray-600 rounded px-4 py-2 hover:bg-gray-700">
-                                    <i className='bx bxs-cart'></i> 🛒
-                                </button>
-                                <button
-                                    className="flex items-center justify-center bg-red-200 text-gray-600 rounded px-4 py-2 hover:bg-pink-300"
-                                >
-                                    <i className='bx bxs-heart'></i> ❤️
-                                </button> */}
-                            </div>
+                            <Button
+                                onClick={() => {
+                                    if(!session.isSignedIn) {
+                                        toast.warning("Trebuie sa fii autentificat pentru a putea achizitiona acest curs")
+                                    }
+                                    else {
+                                        handlePay(product)
+                                    }
+                                }}
+                                disabled={isLoading}
+                                className="flex items-center justify-center bg-gradient-to-r from-red-500 to-yellow-500 text-white font-bold rounded px-4 py-2 hover:from-red-600 hover:to-yellow-600"
+                            >
+                                <i className="bx bxs-zap"></i> Cumpara acum
+                            </Button>
                         </div>
                     </div>
                 </div>

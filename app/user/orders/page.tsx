@@ -5,6 +5,7 @@ import PageLoader from "@/components/page-loader";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useRouter } from "next/navigation";
+import { useSession } from "@clerk/nextjs";
 
 type Order = {
     id: number;
@@ -44,12 +45,25 @@ export default function OrdersPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [isModalOpen, setModalOpen] = useState(false);
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null); // State for error message
+    const [successMessage, setSuccessMessage] = useState<string | null>(null); // State for success message
+    const [isPaid, setIsPaid] = useState(false);
 
     const router = useRouter();
 
     const navigateToCourses = () => {
         router.push('/courses');
     };
+
+    const session  = useSession();
+    const isLoggedIn = session.isSignedIn;
+
+    // Verificăm dacă utilizatorul nu este logat și îl redirecționăm
+    useEffect(() => {
+        if (!isLoggedIn) {
+            router.push('/'); // Redirecționează utilizatorul către pagina principală
+        }
+    }, [isLoggedIn, router]);
 
     useEffect(() => {
         const fetchOrders = async () => {
@@ -79,6 +93,81 @@ export default function OrdersPage() {
     const closeModal = () => {
         setModalOpen(false);
         setSelectedOrder(null);
+        setErrorMessage(null); // Reset error message
+        setSuccessMessage(null); // Reset success message
+    };
+
+    const handleCompletePay = async () => {
+        if (!selectedOrder) return;
+
+        const remainingAmount = Number(selectedOrder.total) - Number(selectedOrder.advance); // Calculăm restul de plată
+        const amountInCents = Math.round(remainingAmount * 100); // Convertim suma la unități de monedă (RON -> bani, adică 1 RON = 100 bani)
+
+        // Construim payload-ul pentru Stripe
+        const payload = {
+            name: selectedOrder.course,
+            price: amountInCents, // Pretul rămas de plată în cenți
+        };
+
+        // Creăm sesiunea de checkout pentru restul de plată
+        const res = await fetch('/api/stripe/checkout', {
+            method: "POST",
+            body: JSON.stringify(payload),
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+
+        const session = await res.json();
+
+        if (session.url) {
+            window.location = session.url; // Redirecționează utilizatorul către checkout-ul Stripe
+        } else {
+            console.error("Failed to create session:", session.error);
+        }
+    };
+
+    // Înainte de a actualiza statusul comenzii, folosim această funcție pentru a crea checkout-ul Stripe
+    const handleStatusUpdate = async () => {
+        if (!selectedOrder) return;
+
+        await handleCompletePay(); // Creează checkout-ul Stripe pentru restul de plată
+
+        // După ce utilizatorul a plătit, actualizăm statusul
+        const remainingAmount = Number(selectedOrder.total) - Number(selectedOrder.advance);
+
+        const payload = {
+            orderId: selectedOrder.id,
+            amount: remainingAmount,
+        };
+
+        try {
+            const res = await fetch(`/api/user/orders/${selectedOrder.id}/complete`, {
+                method: "PATCH",
+                body: JSON.stringify(payload),
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                setOrders(prevOrders =>
+                    prevOrders
+                        ? prevOrders.map(order =>
+                            order.id === selectedOrder.id
+                                ? { ...order, status: "Plata finalizata" }
+                                : order
+                        )
+                        : null
+                );
+                closeModal();
+            } else {
+                console.error("Plata nu a fost procesată corect.");
+            }
+        } catch (error) {
+            console.error("A apărut o eroare la procesarea plății:", error);
+        }
     };
 
     if (isLoading) {
@@ -92,61 +181,95 @@ export default function OrdersPage() {
                     {orders ? <h1 className="text-3xl font-bold mb-8 text-center text-black">Cursurile mele 📚</h1> : <p className="text-2xl pb-6 font-bold text-center text-black">Nici un curs gasit 😔</p>}
 
                     {orders ? (
-                        <Table className="border-collapse border border-gray-200 shadow-lg w-full">
-                            <TableHeader>
-                                <TableRow className="bg-gray-200 border-b border-gray-300">
-                                    <TableHead className="px-6 py-4 text-left font-medium text-black">ID Comandă</TableHead>
-                                    <TableHead className="px-6 py-4 text-left font-medium text-black">Client</TableHead>
-                                    <TableHead className="px-6 py-4 text-left font-medium text-black">Data</TableHead>
-                                    <TableHead className="px-6 py-4 text-left font-medium text-black">Curs</TableHead>
-                                    <TableHead className="px-6 py-4 text-left font-medium text-black">Avans</TableHead>
-                                    <TableHead className="px-6 py-4 text-left font-medium text-black">Total</TableHead>
-                                    <TableHead className="px-6 py-4 text-left font-medium text-black">Status</TableHead>
-                                    <TableHead className="px-6 py-4 text-left font-medium text-black">Acțiuni</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {orders.map((order) => (
-                                    <TableRow key={order.id} className="hover:bg-gray-100">
-                                        <TableCell className="px-6 py-4 border-t border-gray-300 text-black">{order.id}</TableCell>
-                                        <TableCell className="px-6 py-4 border-t border-gray-300 text-black">{order.customer}</TableCell>
-                                        <TableCell className="px-6 py-4 border-t border-gray-300 text-black">{order.date}</TableCell>
-                                        <TableCell className="px-6 py-4 border-t border-gray-300 text-black">{order.course}</TableCell>
-                                        <TableCell className="px-6 py-4 border-t border-gray-300 text-black">{order.advance}</TableCell>
-                                        <TableCell className="px-6 py-4 border-t border-gray-300 text-black">{order.total}</TableCell>
-                                        <TableCell className="px-6 py-4 border-t border-gray-300 text-black">{order.status}</TableCell>
-                                        <TableCell className="px-6 py-4 border-t border-gray-300">
-                                            <Button size="sm" onClick={() => openModal(order)} className="bg-black text-white hover:bg-gray-800">
-                                                Vezi Detalii
-                                            </Button>
-                                        </TableCell>
+                        <div className="w-full">
+                            <Table className="border-collapse border border-gray-200 shadow-lg w-full">
+                                <TableHeader className="hidden md:table-header-group">
+                                    <TableRow className="bg-gray-200 border-b border-gray-300">
+                                        <TableHead className="px-6 py-4 text-left font-medium text-black">ID Comandă</TableHead>
+                                        <TableHead className="px-6 py-4 text-left font-medium text-black">Data</TableHead>
+                                        <TableHead className="px-6 py-4 text-left font-medium text-black">Curs</TableHead>
+                                        <TableHead className="px-6 py-4 text-left font-medium text-black">Avans(RON)</TableHead>
+                                        <TableHead className="px-6 py-4 text-left font-medium text-black">Total(RON)</TableHead>
+                                        <TableHead className="px-6 py-4 text-left font-medium text-black">Rest plata(RON)</TableHead>
+                                        <TableHead className="px-6 py-4 text-left font-medium text-black">Status</TableHead>
+                                        <TableHead className="px-6 py-4 text-left font-medium text-black">Acțiuni</TableHead>
                                     </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
+                                </TableHeader>
+
+                                <TableBody>
+                                    {orders.map((order) => (
+                                        <div
+                                            key={order.id}
+                                            className="md:table-row flex flex-col md:flex-row bg-white shadow-lg rounded-lg p-4 mb-4 border md:border-0 border-gray-300 w-full"
+                                        >
+                                            <div className="md:table-cell px-6 py-4 text-black">
+                                                <span className="block md:hidden font-medium">ID Comandă:</span> {order.id}
+                                            </div>
+
+                                            <div className="md:table-cell px-6 py-4 text-black">
+                                                <span className="block md:hidden font-medium">Data:</span> {new Date(order.date).toLocaleDateString('ro-RO')}
+                                            </div>
+                                            <div className="md:table-cell px-6 py-4 text-black">
+                                                <span className="block md:hidden font-medium">Curs:</span> {order.course}
+                                            </div>
+                                            <div className="md:table-cell px-6 py-4 text-black">
+                                                <span className="block md:hidden font-medium">Avans:</span> {order.advance}
+                                            </div>
+                                            <div className="md:table-cell px-6 py-4 text-black">
+                                                <span className="block md:hidden font-medium">Total(RON):</span> {order.total}
+                                            </div>
+                                            <div className="md:table-cell px-6 py-4 text-black">
+                                                <span className="block md:hidden font-medium">Rest plata:</span> {Number(order.total) - Number(order.advance)}
+                                            </div>
+                                            <div className="md:table-cell px-6 py-4 text-black">
+                                                <span className="block md:hidden font-medium">Status:</span> {order.status}
+                                            </div>
+                                            <div className="md:table-cell px-6 py-4 text-center md:text-left">
+                                                <Button size="sm" onClick={() => openModal(order)} className="bg-black text-white hover:bg-gray-800">
+                                                    Vezi Detalii
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </div>
                     ) : (
                         <div className="text-center">
                             <img src="/assets/images/no-courses.png" alt="Nu exista cursuri" className="w-48 mx-auto mb-4" />
                             <Button onClick={navigateToCourses} className="text-white bg-gradient-to-br from-pink-500 to-orange-400 hover:bg-gradient-to-bl focus:outline-none focus:ring-0 font-medium text-sm px-5 py-2.5 text-center">
-                                Descoperă Cursurile 
+                                Descoperă Cursurile
                             </Button>
                         </div>
                     )}
+
+                    {/* Messages for success or error */}
+                    {errorMessage && <div className="text-red-500 text-center mt-4">{errorMessage}</div>}
+                    {successMessage && <div className="text-green-500 text-center mt-4">{successMessage}</div>}
 
                     <CustomModal isOpen={isModalOpen} onClose={closeModal}>
                         {selectedOrder && (
                             <div>
                                 <h2 className="text-xl font-semibold mb-4 text-center text-black">Detalii Comandă</h2>
                                 <p className="mb-2"><strong>ID Comandă:</strong> {selectedOrder.id}</p>
-                                <p className="mb-2"><strong>Client:</strong> {selectedOrder.customer}</p>
-                                <p className="mb-2"><strong>Data:</strong> {selectedOrder.date}</p>
+                                <p className="mb-2"><strong>Data:</strong> {new Date(selectedOrder.date).toLocaleDateString('ro-RO')}</p>
                                 <p className="mb-2"><strong>Curs:</strong> {selectedOrder.course}</p>
-                                <p className="mb-2"><strong>Avans:</strong> {selectedOrder.advance}</p>
-                                <p className="mb-4"><strong>Total:</strong> {selectedOrder.total}</p>
+                                <p className="mb-2"><strong>Avans:</strong> {selectedOrder.advance} RON ✅</p>
+                                <p className="mb-4"><strong>Total:</strong> {selectedOrder.total} RON</p>
+                                <p className="mb-4"><strong>Rest plata:</strong> {Number(selectedOrder.total) - Number(selectedOrder.advance)} RON</p>
                                 <p className="mb-4"><strong>Status:</strong> {selectedOrder.status}</p>
 
-                                <div className="text-center">
-                                    <Button variant="secondary" onClick={closeModal} className="bg-black text-white hover:bg-gray-800">
+                                <div className="text-center flex flex-col gap-2">
+                                    <Button
+                                        variant="primary"
+                                        onClick={handleStatusUpdate}
+                                        className={`bg-black text-white hover:bg-gray-800 `}
+                                    // disabled={!isPaid} // Butonul este dezactivat până când plata este completată
+                                    >
+                                        Plateste diferenta
+                                    </Button>
+
+                                    <Button variant="outline" onClick={closeModal} className="bg-white text-black">
                                         Închide
                                     </Button>
                                 </div>

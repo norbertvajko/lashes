@@ -101,7 +101,7 @@ const FreeCourse = () => {
                                     download
                                     className="flex items-center justify-center bg-gradient-to-r from-red-500 to-yellow-500 text-white font-bold rounded px-4 py-2 hover:from-red-600 hover:to-yellow-600"
                                 >
-                                    <i className='bx bxs-download'></i> Descarca cursul acum 🔥
+                                    <i className='bx bxs-download'></i> Descarca cursul acum
                                 </a>
                             </div>
                         </div>

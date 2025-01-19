@@ -1,12 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import {
-  motion,
-  AnimatePresence,
-  useScroll,
-  useMotionValueEvent,
-} from "framer-motion";
+import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
 import { cn } from "@/utils/cn";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
@@ -32,6 +27,9 @@ export const FloatingNav = ({
   const [visible, setVisible] = useState(true);
   const { isMobile } = useWindowWidth();
   
+  // State to track loading status
+  const [isLoading, setIsLoading] = useState(true);
+  
   // Call useSession unconditionally at the top
   const user = useSession();
   const isLoggedIn = user?.isSignedIn;
@@ -42,14 +40,25 @@ export const FloatingNav = ({
 
   useEffect(() => {
     if (isLoggedIn) {
-      fetch('/api/auth/check-user')
-        .then((response) => response.json())
-        .then((data) => {
-          console.log('User:', data);
-        })
-        .catch((error) => {
+      // Ensure we wait for the 'check-user' API response before rendering
+      const fetchUserData = async () => {
+        try {
+          const response = await fetch('/api/auth/check-user');
+          if (!response.ok) {
+            throw new Error('Failed to check user');
+          }
+          const data = await response.json();
+        } catch (error) {
           console.error('Error checking user:', error);
-        });
+          // In case of error, we can keep trying or show an error message
+        } finally {
+          setIsLoading(false); // Always stop loading
+        }
+      };
+
+      fetchUserData();
+    } else {
+      setIsLoading(false); // Stop loading if user is not logged in
     }
   }, [isLoggedIn]);
 
@@ -64,6 +73,11 @@ export const FloatingNav = ({
       }
     }
   });
+
+  // Prevent rendering of the navigation until we have finished the user check
+  if (isLoading) {
+    return null; // Or show a loading spinner here
+  }
 
   return (
     <AnimatePresence mode="wait">

@@ -1,9 +1,14 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import expressModuleImg from "../../../assets/images/Curs_Modul_Express.jpg";
 import { useRouter } from 'next/navigation';
 import { RatingReviews } from '@/components/general/rating-reviews';
+import { Product } from '../exclusive/page';
+import { useSession } from '@clerk/nextjs';
+import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import axios from 'axios';
 
 const Breadcrumb: React.FC = () => {
     const router = useRouter();
@@ -37,7 +42,47 @@ const ExpressCourse = () => {
         "✅Scopul meu este să îți ofer o privire de ansamblu, astfel încât să îți poți forma o opinie informată și să descoperi dacă ai o înclinație spre acest domeniu sau NU❌"
     ];
 
-    const router = useRouter();
+    const [isLoading, setIsLoading] = useState(false);
+
+
+    const session = useSession();
+
+    const product: Product = {
+        name: "Modul Express",
+        image: "https://ll-lashes.ro/assets/images/Curs_Modul_Express.jpg",
+        price: 100000,
+    };
+
+    const handlePay = async (product: Product) => {
+        setIsLoading(true); // Set loading to true when payment is being processed
+
+        const totalAmount = 300000;
+
+        const payload = {
+            ...product,
+            totalAmount, // Include the calculated totalAmount
+        };
+
+        try {
+            const res = await axios.post('/api/stripe/checkout', payload, {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+
+            const session = res.data;
+
+            if (session.url) {
+                window.location.href = session.url; // Redirect to Stripe checkout
+            } else {
+                console.error("Failed to create session:", session.error);
+            }
+        } catch (error) {
+            console.error("Error during payment request:", error);
+        } finally {
+            setIsLoading(false); // Reset loading state once the request is complete
+        }
+    };
 
     return (
         <div className="flex flex-col md:flex-row items-center justify-center sm:mt-0 mb-7">
@@ -73,17 +118,17 @@ const ExpressCourse = () => {
                             </div>
 
                             <div className="flex items-center mt-2">
-                                <span className="text-4xl font-bold">1000</span>
+                                <span className="text-4xl font-bold">3.000 RON</span>
                                 <div className='flex flex-col'>
-                                    <span className="text-lg font-medium line-through text-gray-500 ml-2">1200 RON</span>
-                                    <span className="text-xs font-semibold text-gray-500 ml-2">500 RON - AVANS</span>
+                                    <span className="text-lg font-medium line-through text-gray-500 ml-2">3.900 RON</span>
+                                    <span className="text-xs font-semibold text-gray-500 ml-2">1.000 RON - AVANS</span>
                                 </div>
                             </div>
 
                             <div className="mt-4">
                                 <h3 className="text-lg font-bold">Descriere</h3>
                                 <p className="mt-2 text-sm leading-5">
-                                🧠Acest modul este gândit ca un curs de baza+o perfecționare SUPER INTENSIV ca tu să poți imediat dupa curs să ai cliente pe bani. 💰
+                                    🧠Acest modul este gândit ca un curs de baza+o perfecționare SUPER INTENSIV ca tu să poți imediat dupa curs să ai cliente pe bani. 💰
                                 </p>
                                 <p className='text-sm pt-3 font-semibold'>Cursul meu este simplu și accesibil, ideal pentru începători🐣. </p>
                             </div>
@@ -117,27 +162,20 @@ const ExpressCourse = () => {
                             </div>
 
                             <hr className="my-4 border-gray-300" />
-
-                            {/* Button Group */}
-                            <div className="flex gap-4 flex-wrap">
-                                <button 
-                                className="flex items-center justify-center bg-gradient-to-r from-red-500 to-yellow-500 text-white font-bold rounded px-4 py-2 hover:from-red-600 hover:to-yellow-600"
+                            <Button
                                 onClick={() => {
-                                    router.push('https://buy.stripe.com/5kA3cf1NWbvTgdadQV');
+                                    if(!session.isSignedIn) {
+                                        toast.warning("Trebuie sa fii autentificat pentru a putea achizitiona acest curs")
+                                    }
+                                    else {
+                                        handlePay(product)
+                                    }
                                 }}
-                                >
-                                    <i className='bx bxs-zap'></i> Cumpara acum 🔥
-                                </button>
-                                {/* <button
-                                    className="flex items-center justify-center bg-black text-gray-600 rounded px-4 py-2 hover:bg-gray-700">
-                                    <i className='bx bxs-cart'></i> 🛒
-                                </button>
-                                <button
-                                    className="flex items-center justify-center bg-red-200 text-gray-600 rounded px-4 py-2 hover:bg-pink-300"
-                                >
-                                    <i className='bx bxs-heart'></i> ❤️
-                                </button> */}
-                            </div>
+                                disabled={isLoading}
+                                className="flex items-center justify-center bg-gradient-to-r from-red-500 to-yellow-500 text-white font-bold rounded px-4 py-2 hover:from-red-600 hover:to-yellow-600"
+                            >
+                                <i className="bx bxs-zap"></i> Cumpara acum
+                            </Button>
                         </div>
                     </div>
                 </div>

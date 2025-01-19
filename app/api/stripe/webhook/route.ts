@@ -1,53 +1,97 @@
+import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
-import { NextResponse, NextRequest } from "next/server";
-import { registerPayment } from "@/actions/registerPayment";
+import { db } from "@/lib/db";
+import { headers } from "next/headers";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
-export async function POST(req: NextRequest) {
-    const payload = await req.text(); // Obține textul brut din request
-    const sig = req.headers.get("Stripe-Signature"); // Obține semnătura Stripe
+export async function POST(request: NextRequest) {
+    const body = await request.text();
+    const headersList = headers();
+    const sig = headersList.get("stripe-signature");
+
+    let event;
 
     try {
-        // Construiți evenimentul folosind semnătura și secretul webhook-ului
-        const event = stripe.webhooks.constructEvent(
-            payload,
-            sig!,
-            process.env.STRIPE_WEBHOOK_SECRET!
-        );
+        event = stripe.webhooks.constructEvent(body, sig!, process.env.STRIPE_WEBHOOK_SECRET!);
+    } catch (err) {
+        console.log((err as Error).message);
+        return NextResponse.json({ error: (err as Error).message }, { status: 400 });
+    }
 
-        // Verificați tipul de eveniment (ex. charge.succeeded)
-        if (event.type === "charge.succeeded") {
-            const charge = event.data.object as Stripe.Charge; 
+    if (event.type === "checkout.session.completed") {
+        const session = event.data.object as Stripe.Checkout.Session;
 
-            const dateTime = new Date(charge.created * 1000).toLocaleString();
-            const timeString = new Date(charge.created * 1000).toLocaleString();
+        const clerkUserId = session.client_reference_id!; // Clerk user ID from the Stripe session
+        const totalAmountFromMetadata = session.metadata?.totalAmount; // Fetch totalAmount from metadata
 
-            // Apelarea funcției `registerPayment` cu informațiile necesare
-            const resp: any = await registerPayment(
-                charge.billing_details.email!, // Emailul clientului
-                charge.amount, // Suma plătită
-                JSON.stringify(charge), // Obiectul complet
-                event.type, // Tipul evenimentului
-                timeString, // Ora formatată
-                dateTime, // Ora formatată
-                charge.receipt_email, // Emailul pentru chitanță
-                charge.receipt_url, // URL-ul chitanței
-                JSON.stringify(charge.payment_method_details), // Detalii metodă de plată
-                JSON.stringify(charge.billing_details), // Detalii facturare
-                charge.currency // Moneda
-            );
-
-            console.log(resp);
-
-            return NextResponse.json({ status: "Success", event: event.type });
+        if (!totalAmountFromMetadata) {
+            console.log("Total amount is missing in metadata.");
+            return NextResponse.json({ error: "Missing totalAmount in metadata" }, { status: 400 });
         }
 
-        // Returnați răspuns pentru alte tipuri de evenimente
-        return NextResponse.json({ status: "Ignored", event: event.type });
+        const totalAmount = parseFloat(totalAmountFromMetadata) / 100;
 
-    } catch (error) {
-        console.error("Error handling Stripe webhook:", error);
-        return NextResponse.json({ status: "Failed", error });
+        // Fetch the user from the database using clerkUserId to get the corresponding id
+        const user = await db.user.findUnique({
+            where: { clerkUserId },
+        });
+
+        if (!user) {
+            console.log("User does not exist. Cannot create order.");
+            return NextResponse.json({ error: "User not found" }, { status: 400 });
+        }
+
+        const userId = user.id; // Use the id from the User table
+
+        // Fetch the full session from Stripe to get line_items
+        try {
+            const stripeSession = await stripe.checkout.sessions.retrieve(session.id, {
+                expand: ["line_items"], // Expands the line_items field
+            });
+
+            const lineItems = stripeSession.line_items?.data;
+            const productItem = lineItems && lineItems[0];
+
+            if (productItem && productItem.price?.unit_amount) {
+                const price = productItem.price.unit_amount / 100; // Convert to RON (if Stripe stores smallest unit)
+                let productName: string;
+
+                if (typeof productItem.price.product === "string") {
+                    const product = await stripe.products.retrieve(productItem.price.product);
+                    productName = product.name;
+                } else {
+                    const product = productItem.price.product;
+
+                    if (product.deleted) {
+                        console.log("The product has been deleted, cannot save order.");
+                        return NextResponse.json({ error: "Product is deleted" }, { status: 400 });
+                    }
+
+                    productName = product.name;
+                }
+
+                // Create the order using the product name and totalAmount
+                const order = await db.order.create({
+                    data: {
+                        userId,
+                        course: productName,
+                        advance: price, // Use the price extracted from line_items
+                        total: totalAmount, // Ensure total is a float
+                        status: "Avans platit",
+                    },
+                });
+
+                console.log("Order saved:", order);
+            } else {
+                console.log("Price or product name not found in line items.");
+                return NextResponse.json({ error: "Price or product name not found" }, { status: 400 });
+            }
+        } catch (dbError) {
+            console.log("Error saving order:", dbError);
+            return NextResponse.json({ error: "Error saving order" }, { status: 500 });
+        }
     }
+
+    return NextResponse.json("Webhook processed successfully");
 }

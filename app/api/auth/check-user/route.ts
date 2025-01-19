@@ -28,10 +28,7 @@ export async function GET(req: Request) {
             image: imageUrl || '', // Asigură-te că imageUrl nu este null
           },
         });
-      } else {
-        console.log('Image URL is the same, no update needed.');
-      }
-
+      } else { }
       // Returnează utilizatorul existent
       return NextResponse.json(existingUser);
     }
