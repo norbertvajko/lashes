@@ -1,12 +1,10 @@
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
 
-// PATCH pentru completarea plății
 export async function PATCH(req: Request, { params }: { params: { orderId: string } }) {
     const { orderId } = params;
 
     try {
-        // Căutăm comanda în baza de date
         const order = await db.order.findUnique({
             where: { id: Number(orderId) },
         });
@@ -18,7 +16,6 @@ export async function PATCH(req: Request, { params }: { params: { orderId: strin
         const remainingAmount = order.total - order.advance;
 
         if (remainingAmount <= 0) {
-            // Actualizăm comanda pentru a marca plata ca fiind finalizată
             const updatedOrder = await db.order.update({
                 where: { id: Number(orderId) },
                 data: {
