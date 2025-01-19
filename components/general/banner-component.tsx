@@ -88,9 +88,10 @@ export const BannerComponent = () => {
             </div>
           </CardContent>
 
-          <ScrollDownButton
+        <div className="mt-[45px] bg-white">
+        <ScrollDownButton
             text='Despre mine'
-            className='absolute bottom-0 mt-10'
+            className='absolute bottom-0 mt-0 sm:mt-10 bg-white'
             onClick={() => {
               window.scrollTo({
                 top: isMobile ? 2680 : 1300,
@@ -98,10 +99,12 @@ export const BannerComponent = () => {
               });
             }}
           />
+          </div>
+
 
           {/* SVG positioned at the bottom */}
           <svg
-            className="absolute bottom-0 w-full h-6 -mb-5 sm:-mb-10 sm:h-[7rem] bg-white border border-b-black/60 border-t-0 border-l-0 border-r-0"
+            className="absolute bottom-0 w-full h-6 -mb-5 sm:-mb-10 sm:h-[7rem] sm:bg-white"
             preserveAspectRatio="none"
             viewBox="0 0 1440 320"
           >
@@ -110,7 +113,6 @@ export const BannerComponent = () => {
               d="M0,192L48,170.7C96,149,192,107,288,106.7C384,107,480,149,576,181.3C672,213,768,235,864,218.7C960,203,1056,149,1152,149.3C1248,149,1344,203,1392,229.3L1440,256L1440,0L0,0Z"
             />
           </svg>
-
         </Card>
       ))}
     </div>

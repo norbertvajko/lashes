@@ -19,7 +19,7 @@ const Home = async () => {
           <BannerComponent />
         </header>
         <main className="pb-6">
-          <div className="pt-7">
+          <div className="pt-0 sm:pt-7">
             <CoursesComponentDemo />
             <AbutMeComponent />
             <GalleryComponent />

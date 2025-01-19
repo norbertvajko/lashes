@@ -71,7 +71,7 @@ export const CoursesComponentDemo: FC<{
                 WebkitBackgroundClip: 'text',
               }}
             >
-              CURS DE BAZA EXTENSII DE GENE FIR CU FIR
+              Cursuri
             </motion.h1>
           </div>
         )}
