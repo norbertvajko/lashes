@@ -71,7 +71,7 @@ export const CoursesComponentDemo: FC<{
                 WebkitBackgroundClip: 'text',
               }}
             >
-              Cursuri
+              Cursuri 
             </motion.h1>
           </div>
         )}

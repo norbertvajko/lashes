@@ -88,10 +88,9 @@ export const BannerComponent = () => {
             </div>
           </CardContent>
 
-        <div className="mt-[45px] bg-white">
         <ScrollDownButton
             text='Despre mine'
-            className='absolute bottom-0 mt-0 sm:mt-10 bg-white'
+            className='absolute bottom-[-45px] sm:bottom-0 mt-0 sm:mt-10 bg-white'
             onClick={() => {
               window.scrollTo({
                 top: isMobile ? 2680 : 1300,
@@ -99,8 +98,6 @@ export const BannerComponent = () => {
               });
             }}
           />
-          </div>
-
 
           {/* SVG positioned at the bottom */}
           <svg
