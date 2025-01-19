@@ -3,7 +3,6 @@
 import { Card, CardContent } from '@/components/ui/card';
 import React, { useEffect, useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
-import CertificationsSLider from './certifications-slider';
 import QuoteText from './quote-text';
 
 export const AboutMeSection = () => {
