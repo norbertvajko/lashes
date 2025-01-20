@@ -7,7 +7,10 @@ body,
 :root {
   height: 100%;
   font-family: 'Aniyah Personal Use', sans-serif;
-  background: white;
+}
+
+body {
+  touch-action: pan-y; /* Allow only vertical panning */
 }
 
 @layer base {

@@ -37,7 +37,7 @@ export default async function RootLayout({
   return (
     <ClerkProvider localization={roLocalization} >
       <html lang="en" suppressHydrationWarning={true}>
-        <body suppressHydrationWarning={true} className={`${inter.className} bg-slate-50 dark:bg-[#09090B]`} >
+        <body suppressHydrationWarning={true} className={`${inter.className}`} >
           <NextSSRPlugin
             routerConfig={extractRouterConfig(ourFileRouter)}
           />

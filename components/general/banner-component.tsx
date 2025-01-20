@@ -93,7 +93,7 @@ export const BannerComponent = () => {
             className='absolute bottom-[-45px] sm:bottom-0 mt-0 sm:mt-10 bg-white'
             onClick={() => {
               window.scrollTo({
-                top: isMobile ? 2680 : 1300,
+                top: isMobile ? 2530 : 1300,
                 behavior: "smooth"
               });
             }}
