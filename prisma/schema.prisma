@@ -25,6 +25,7 @@ model User {
   favoriteCourses       FavoriteCourses[]   
   cartCourses           CartCourses[]      
   orders  Order[]
+  termsAccepted         DateTime
 }
 
 model Order {

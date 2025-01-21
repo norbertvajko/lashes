@@ -16,8 +16,8 @@ export const sendEmail = async ({
     const msg = {
         to: to,
         from: {
-            email: "vajkonorbert13@gmail.com",
-            name: "This is a demo"
+            email: "mail@ll-lashes.ro",
+            name: "LL Lashes"
         },
         templateId: templates[templateName],
         dynamicTemplateData

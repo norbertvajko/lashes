@@ -9,7 +9,7 @@ export const sendContactEmailAction = async (formData: FormData) => {
         const message = formData.get("message") as string;
 
         await sendEmail({
-            to: "vajkonorbert13@gmail.com",
+            to: "mail@ll-lashes.ro",
             templateName: "ContactSubmission",
             dynamicTemplateData: {
                 name,
