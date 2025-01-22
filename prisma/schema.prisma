@@ -25,7 +25,7 @@ model User {
   favoriteCourses       FavoriteCourses[]   
   cartCourses           CartCourses[]      
   orders  Order[]
-  termsAccepted         DateTime
+  termsAccepted         String?
 }
 
 model Order {

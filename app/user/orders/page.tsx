@@ -183,7 +183,7 @@ export default function OrdersPage() {
 
                     {orders ? (
                         <div className="w-full">
-                            <Table className="border-collapse border border-gray-200 shadow-lg w-full">
+                            <Table className="w-full">
                                 <TableHeader className="hidden md:table-header-group">
                                     <TableRow className="bg-gray-200 border-b border-gray-300">
                                         <TableHead className="px-6 py-4 text-left font-medium text-black">ID Comandă</TableHead>
@@ -201,7 +201,7 @@ export default function OrdersPage() {
                                     {orders.map((order) => (
                                         <div
                                             key={order.id}
-                                            className="md:table-row flex flex-col md:flex-row bg-white shadow-lg rounded-lg p-4 mb-4 border md:border-0 border-gray-300 w-full"
+                                            className="md:table-row flex flex-col md:flex-row bg-white shadow-lg rounded-lg p-4 mb-4 border md:border-0 border-gray-300 w-full m-0"
                                         >
                                             <div className="md:table-cell px-6 py-4 text-black">
                                                 <span className="block md:hidden font-medium">ID Comandă:</span> {order.id}

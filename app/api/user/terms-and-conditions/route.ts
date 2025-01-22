@@ -1,10 +1,10 @@
 import { db } from "@/lib/db";
 import { getAuth } from "@clerk/nextjs/server"; // For Clerk authentication
 import { serialize } from "cookie"; // To set cookies
-import { NextApiRequest } from "next";
+import { NextRequest } from "next/server";
 
 // POST method to handle the terms acceptance
-export async function POST(req: NextApiRequest) {
+export async function POST(req: NextRequest) {
   try {
     // Extract Clerk user information
     const auth = getAuth(req);
@@ -68,7 +68,7 @@ export async function POST(req: NextApiRequest) {
     // Update the termsAccepted field in the database if user exists
     const updatedUser = await db.user.update({
       where: { clerkUserId },
-      data: { termsAccepted: new Date() },
+      data: { termsAccepted: new Date().toISOString() }, 
     });
 
     return new Response(
@@ -80,9 +80,9 @@ export async function POST(req: NextApiRequest) {
     );
   } catch (error: unknown) {
     const errorMessage =
-      error instanceof Error ? error.message : "An unknown error occurred";
+      error instanceof Error ? error.message : "A aparut o eroare la validarea termenilor si conditiilor.";
 
-    console.error("Error handling termsAccepted:", errorMessage);
+    console.error("Eroare:", errorMessage);
     return new Response(
       JSON.stringify({ error: errorMessage }),
       { status: 500, headers: { "Content-Type": "application/json" } }

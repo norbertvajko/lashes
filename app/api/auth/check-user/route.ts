@@ -48,8 +48,11 @@ export async function GET(req: Request) {
         payments: { create: [] },
         favoriteCourses: { create: [] },
         cartCourses: { create: [] },
+        termsAccepted: "",
       },
     });
+
+    console.log(createdUser)
 
     return NextResponse.json(createdUser, { status: 201 });
   } catch (err) {
