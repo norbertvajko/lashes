@@ -1,39 +1,48 @@
 import { db } from '@/lib/db';
-import { currentUser } from '@clerk/nextjs/server';
 import { UserRole } from '@prisma/client';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { getAuth, clerkClient } from '@clerk/nextjs/server';
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
   try {
-    const user = await currentUser();
+    // Get authentication details
+    const { userId } = getAuth(req);
+
+    if (!userId) {
+      return NextResponse.json({ message: 'User not authenticated' }, { status: 401 });
+    }
+
+    const clerk = await clerkClient();
+    const user = await clerk.users.getUser(userId);
 
     if (!user) {
-      return NextResponse.json({ message: 'User not authenticated' }, { status: 401 });
+      return NextResponse.json({ message: 'User not found in Clerk' }, { status: 404 });
     }
 
     const { id, emailAddresses, firstName, lastName, imageUrl } = user;
 
-    // Verifică dacă utilizatorul există deja în baza de date
+    // Check if the user exists in your database
     const existingUser = await db.user.findUnique({
       where: { clerkUserId: id },
     });
 
     if (existingUser) {
-      // Dacă utilizatorul există și imageUrl s-a schimbat, îl actualizezi
+      // Update the image URL if it has changed
       if (existingUser.image !== imageUrl) {
         console.log('Updating image URL in the database...');
         await db.user.update({
           where: { clerkUserId: id },
           data: {
-            image: imageUrl || '', // Asigură-te că imageUrl nu este null
+            image: imageUrl || '', // Ensure imageUrl is not null
           },
         });
-      } else { }
-      // Returnează utilizatorul existent
+      }
+
+      // Return the existing user
       return NextResponse.json(existingUser);
     }
 
-    // Creează utilizatorul în baza de date dacă nu există
+    // Create the user in the database if they don't exist
     const createdUser = await db.user.create({
       data: {
         clerkUserId: id,
@@ -52,7 +61,7 @@ export async function GET(req: Request) {
       },
     });
 
-    console.log(createdUser)
+    console.log(createdUser);
 
     return NextResponse.json(createdUser, { status: 201 });
   } catch (err) {
