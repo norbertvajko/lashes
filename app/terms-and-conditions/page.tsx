@@ -3,7 +3,6 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Button } from "@/components/ui/button"
 import axios from "axios";
-import Link from "next/link"
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -23,7 +22,6 @@ export default function TermsAndConditions() {
 
             if (response.status === 200) {
                 setSuccess(true);
-                // Redirect or update UI as needed
                 setTimeout(() => {
                     router.push("/");
                 }, 1000);
@@ -79,7 +77,7 @@ export default function TermsAndConditions() {
                         </AccordionContent>
                     </AccordionItem>
                     <AccordionItem value="item-3">
-                        <AccordionTrigger>3. Continut site si drept de proprietate intelectuala</AccordionTrigger>
+                        <AccordionTrigger>3. Drept de proprietate intelectuala</AccordionTrigger>
                         <AccordionContent>
                             <b>3.1</b> Continutul informativ/imagistic prezentat pe site este PROPRIETATEA INTELECTUALA a LL LASHES SA.<br /><br />
                             <b>3.2</b> Nici un continut transmis catre Utilizator sau Client, prin orice mijloc de comunicare sau dobandit de acesta prin accesare, vizitare si/sau vizualizare nu constituie o obligatie contractuala din partea LL LASHES SA si/sau al angajatului LL LASHES SA care a mijlocit transferul de continut, in cazul in care aceasta exista, fata de respectivul continut.<br /><br />

@@ -34,6 +34,7 @@ export async function GET(req: NextRequest) {
           where: { clerkUserId: id },
           data: {
             image: imageUrl || '', // Ensure imageUrl is not null
+            name: `${firstName} ${lastName}`
           },
         });
       }

@@ -15,6 +15,7 @@ interface Comment {
     user: {
         name: string;
         image: string;
+        email: string;
     };
 }
 
@@ -82,6 +83,13 @@ const CommandsSection = () => {
         }
     };
 
+    const getUserNameFromEmailAddress = (email: string) => {
+        if (!email || typeof email !== 'string') {
+            return null; 
+        }
+        return email.split('@')[0];
+    };
+
     return (
         <section className="bg-white dark:bg-gray-900 py-8 lg:py-16 antialiased">
             <div className="max-w-2xl mx-auto px-4">
@@ -106,9 +114,9 @@ const CommandsSection = () => {
                                                     src={comment.user.image ?? "https://t3.ftcdn.net/jpg/03/58/90/78/360_F_358907879_Vdu96gF4XVhjCZxN2kCG0THTsSQi8IhT.jpg"}
                                                     alt="Profile"
                                                 />
-                                                {comment.user.name}
+                                                {!comment.user.name || comment.user.name === "null null" ? getUserNameFromEmailAddress(comment.user.email) : comment.user.name}
                                             </p>
-                                            <p className="text-sm text-gray-600 dark:text-gray-400">
+                                            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
                                                 <time
                                                     dateTime={comment.createdAt}
                                                     title={comment.createdAt}
