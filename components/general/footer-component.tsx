@@ -25,7 +25,7 @@ export const FooterComponent = () => {
                             </p>
                             <div className="flex text-gray-500">
                                 <p className="mr-1">Denumire: </p>
-                                <p className="transition-colors duration-300 text-deep-purple-accent-400 hover:text-deep-gray-800 text-gray-400">LL LASHES SA</p>
+                                <p className="transition-colors duration-300 text-deep-purple-accent-400 hover:text-deep-gray-800 text-gray-400">LL LASHES SRL</p>
                             </div>
                             <div className="flex text-gray-500">
                                 <p className="mr-1">CUI:</p>
@@ -75,17 +75,17 @@ export const FooterComponent = () => {
                                 0755 018 516
                             </a>
                         </div>
-                        {/* <div className="flex text-gray-500">
+                        <div className="flex text-gray-500">
                             <p className="mr-1">Email:</p>
                             <a
-                                href="mailto:info@lorem.mail"
+                                href="mailto:mail@ll-lashes.ro"
                                 aria-label="Our email"
                                 title="Our email"
                                 className="transition-colors duration-300 text-deep-purple-accent-400 hover:text-deep-gray-800 text-gray-400"
                             >
-                                ll-lashes.mail.ro
-                            </a> */}
-                        {/* </div> */}
+                                mail@ll-lashes.ro
+                            </a>
+                         </div>
                         <div className="flex text-gray-500">
                             <p className="mr-1">Adresa:</p>
                             <a

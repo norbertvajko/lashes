@@ -3,9 +3,6 @@ import { Montserrat } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import React from "react";
-import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
-import { extractRouterConfig } from "uploadthing/server";
-import { ourFileRouter } from "./api/uploadthing/core";
 import {
   ClerkProvider,
 } from '@clerk/nextjs'
@@ -38,9 +35,6 @@ export default async function RootLayout({
     <ClerkProvider localization={roLocalization} >
       <html lang="en" suppressHydrationWarning={true}>
         <body suppressHydrationWarning={true} className={`${inter.className}`} >
-          <NextSSRPlugin
-            routerConfig={extractRouterConfig(ourFileRouter)}
-          />
           <Toaster />
           {children}
           {/* <ConsentBanner>

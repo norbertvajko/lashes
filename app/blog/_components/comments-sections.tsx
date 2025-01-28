@@ -60,7 +60,7 @@ const CommandsSection = () => {
 
     const handleSubmit = async (event: any) => {
         event.preventDefault();
-        setIsSubmitting(true); // Set submitting to true when the comment is being posted
+        setIsSubmitting(true); 
         try {
             const response = await fetch('/api/user/post-comment', {
                 method: 'POST',
