@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import Loading from '../loading';
 import { useSession } from '@clerk/nextjs';
 import { FaSpinner } from 'react-icons/fa'; // Importă un icon de loading
+import { LoadingSpinner } from '@/components/general/loading-spinner';
 
 interface Comment {
     id: string;
@@ -164,7 +165,7 @@ const CommandsSection = () => {
                             className="inline-flex items-center py-2.5 px-4 text-xs font-medium text-center text-white bg-black rounded-lg focus:ring-4 focus:ring-primary-200 dark:focus:ring-primary-900 hover:bg-primary-800 focus:outline-none"
                         >
                             {isSubmitting ? (
-                                <FaSpinner className="animate-spin mr-2" /> // Show spinning icon when submitting
+                                <LoadingSpinner />
                             ) : (
                                 'Posteaza comentariu'
                             )}

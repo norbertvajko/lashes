@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner"; // For toast notifications
+import { LoadingSpinner } from "@/components/general/loading-spinner";
 
 export const ContactForm = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -108,7 +109,7 @@ export const ContactForm = () => {
                     className="w-full bg-transparent border-b border-gray-500 p-2 mb-4 outline-none resize-none"
                 ></textarea>
                 <Button variant={"secondary"} type="submit" id="submit" name="submit" disabled={isSubmitting}>
-                    {isSubmitting ? "Se trimite..." : "Trimite"}
+                    {isSubmitting ? <LoadingSpinner /> : "Trimite"}
                 </Button>
             </form>
         </div>

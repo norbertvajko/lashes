@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useRouter } from "next/navigation";
 import { useSession } from "@clerk/nextjs";
+import { CONST_ADVANCE_PAYMENT_PRICE } from "@/constants/courses/data";
 
 type Order = {
     id: number;
@@ -214,7 +215,8 @@ export default function OrdersPage() {
                                                 <span className="block md:hidden font-medium">Curs:</span> {order.course}
                                             </div>
                                             <div className="md:table-cell px-6 py-4 text-black">
-                                                <span className="block md:hidden font-medium">Avans:</span> {order.advance}
+                                                <span className="block md:hidden font-medium">Avans:</span>
+                                                {CONST_ADVANCE_PAYMENT_PRICE}
                                             </div>
                                             <div className="md:table-cell px-6 py-4 text-black">
                                                 <span className="block md:hidden font-medium">Total(RON):</span> {order.total}
@@ -256,7 +258,7 @@ export default function OrdersPage() {
                                 <p className="mb-2"><strong>ID Comandă:</strong> {selectedOrder.id}</p>
                                 <p className="mb-2"><strong>Data:</strong> {new Date(selectedOrder.date).toLocaleDateString('ro-RO')}</p>
                                 <p className="mb-2"><strong>Curs:</strong> {selectedOrder.course}</p>
-                                <p className="mb-2"><strong>Avans:</strong> {selectedOrder.advance} RON ✅</p>
+                                <p className="mb-2"><strong>Avans:</strong> {CONST_ADVANCE_PAYMENT_PRICE} RON ✅</p>
                                 <p className="mb-4"><strong>Total:</strong> {selectedOrder.total} RON {selectedOrder.status === "Plata finalizata" ? '✅' : ''}</p>
                                 <p className="mb-4"><strong>Rest plata:</strong> {selectedOrder.status === "Plata finalizata" ? 0 : Number(selectedOrder.total) - Number(selectedOrder.advance)} RON</p>
                                 <p className="mb-4"><strong>Status:</strong> {selectedOrder.status}</p>
