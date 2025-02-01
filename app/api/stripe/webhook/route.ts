@@ -6,6 +6,11 @@ import { CONST_ADVANCE_PAYMENT_PRICE } from "@/constants/courses/data";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
+const baseUrl =
+    process.env.NODE_ENV === "development"
+        ? "http://localhost:3000"
+        : process.env.NEXT_PUBLIC_APP_URL;
+
 export async function POST(request: NextRequest) {
     const body = await request.text();
     const headersList = headers();
@@ -86,6 +91,14 @@ export async function POST(request: NextRequest) {
                 });
 
                 console.log("Order saved:", order);
+
+                //trimititere mail cu, contractul
+                await fetch(`${baseUrl}/api/emails/contract`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ orderId: order.id }),
+                });
+                
             } else {
                 console.log("Price or product name not found in line items.");
                 return NextResponse.json({ error: "Price or product name not found" }, { status: 400 });
