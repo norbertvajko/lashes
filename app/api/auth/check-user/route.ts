@@ -15,6 +15,8 @@ export async function GET(req: NextRequest) {
     const clerk = await clerkClient();
     const user = await clerk.users.getUser(userId);
 
+    console.log(user);
+
     if (!user) {
       return NextResponse.json({ message: 'User not found in Clerk' }, { status: 404 });
     }
