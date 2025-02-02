@@ -25,7 +25,7 @@ const BlogPost = ({ post }: any) => {
             >
                 <img
                     alt={post.title}
-                    className="object-cover w-full h-52 dark:bg-gray-500 rounded-t-lg" 
+                    className="object-cover w-full h-[350px] dark:bg-gray-500 rounded-t-lg" 
                     src={post.imgSrc}
                     onClick={(e) => {
                         e.preventDefault();
