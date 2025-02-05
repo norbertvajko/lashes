@@ -45,7 +45,7 @@ const FreeCourse = () => {
                     {/* Product Image Section */}
                     <div className="w-full md:w-1/2">
                         <div className="relative w-full">
-                            <div className="max-h-[480px] bg-gray-200">
+                            <div className="bg-gray-200">
                                 <img
                                     src={freeImage.src}
                                     alt=""
@@ -81,16 +81,6 @@ const FreeCourse = () => {
                                     Daca ai vrea sa te intri in domeniul extensiilor de gene dar inca nu esti sigura ca te vei descurca financiar ,eu am creat pentru tine acest webinar informativ si GRATUIT unde vei afla costurile reale ale acestei meserii frumoase
                                 </p>
                                 <p className='text-sm pt-3 font-semibold'>Cursul meu este simplu și accesibil, ideal pentru începători🐣. </p>
-                            </div>
-                            <div className="mt-4">
-                                <h4 className="text-md font-bold mb-2">📚 Ce vei învăța la curs?</h4>
-                                <ul className="list-disc list-inside">
-                                    {initialPoints.map((point, index) => (
-                                        <li key={index} className="flex items-center pb-[14px]">
-                                            {point}
-                                        </li>
-                                    ))}
-                                </ul>
                             </div>
 
                             <hr className="my-4 border-gray-300" />
