@@ -32,12 +32,6 @@ const Breadcrumb: React.FC = () => {
 };
 
 const FreeCourse = () => {
-
-    const initialPoints = [
-        "📝Vei învăța elementele de bază ale aplicării extensiilor de gene, doar la suprafață, pentru a înțelege mai bine despre ce este vorba în această meserie. ",
-        "✅Scopul meu este să îți ofer o privire de ansamblu, astfel încât să îți poți forma o opinie informată și să descoperi dacă ai o înclinație spre acest domeniu sau NU❌"
-    ];
-
     return (
         <div className="flex flex-col md:flex-row items-center justify-center sm:mt-0 mb-7">
             <div className="w-full max-w-5xl">
