@@ -1,7 +1,17 @@
 import { BackButton } from "@/components/general/back-button";
+import { Metadata } from "next";
 import React from "react";
 
-const ContactPageLayout = ({ children }: { children: React.ReactNode }) => {
+export const metadata: Metadata = {
+    title: "Termeni si conditii",
+    description: "Citește cu atenție termenii și condițiile de utilizare a site-ului și serviciilor noastre. Transparență, responsabilitate și siguranță pentru toți utilizatorii.",
+    icons: {
+        icon: ['/icon.ico']
+    },
+    manifest: '/site.webmanifest',
+};
+
+const TermsAndConditionsPageLayout = ({ children }: { children: React.ReactNode }) => {
 
     return (
         <>
@@ -11,4 +21,4 @@ const ContactPageLayout = ({ children }: { children: React.ReactNode }) => {
     )
 }
 
-export default ContactPageLayout;
+export default TermsAndConditionsPageLayout;

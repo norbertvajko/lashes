@@ -1,7 +1,17 @@
 import { BackButton } from "@/components/general/back-button";
 import FooterComponent from "@/components/general/footer-component";
 import { Navbar } from "@/components/general/navbar";
+import { Metadata } from "next";
 import React from "react";
+
+export const metadata: Metadata = {
+    title: "Cursuri",
+    description: "Explorează cursurile noastre și învață într-un mod practic și interactiv. Fă un pas înainte în dezvoltarea ta personală și profesională!",
+    icons: {
+        icon: ['/icon.ico']
+    },
+    manifest: '/site.webmanifest',
+};
 
 const CoursesPageLayout = ({ children }: { children: React.ReactNode }) => {
 

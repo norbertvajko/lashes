@@ -13,7 +13,7 @@ const inter = Montserrat({ weight: "400", preload: false });
 
 export const metadata: Metadata = {
   title: "LL Lashes",
-  description: "Fa dintr-o pasiune un lifestyle",
+  description: "Descoperă universul LL Lashes — servicii profesionale de extensii de gene, dedicate femeilor care vor să-și accentueze frumusețea naturală. Calitate, grijă și rezultate spectaculoase.",
   icons: {
     icon: ['/icon.ico']
   },
