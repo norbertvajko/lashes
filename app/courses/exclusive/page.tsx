@@ -152,7 +152,7 @@ const ExclusiveCourse = () => {
                     {/* Product Image Section */}
                     <div className="w-full md:w-1/2">
                         <div className="relative w-full">
-                            <div className="max-h-[480px] bg-gray-200">
+                            <div className=" bg-gray-200">
                                 <img
                                     src={exclusiveCourseImg.src}
                                     alt=""

@@ -72,7 +72,7 @@ const StandardCourse = () => {
 
     const product: Product = {
         name: "Modul Standard",
-        image: "https://ll-lashes.ro/assets/images/Curs_Modul_Express.jpg",
+        image: "https://ll-lashes.ro/assets/images/Curs_Modul_Standard.jpg",
         price: CONST_ADVANCE_PAYMENT_PRICE * 100,
     };
 
@@ -147,7 +147,7 @@ const StandardCourse = () => {
                     {/* Product Image Section */}
                     <div className="w-full md:w-1/2">
                         <div className="relative w-full">
-                            <div className="max-h-[480px] bg-gray-200">
+                            <div className="bg-gray-200">
                                 <img
                                     src={standarModuleImg.src}
                                     alt=""

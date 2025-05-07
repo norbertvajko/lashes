@@ -3,7 +3,6 @@
 import React, { FC } from "react";
 import standardImage from "../../assets/images/Curs_Modul_Standard.jpg";
 import premiumImage from "../../assets/images/Curs_Modul_Exclusiv.jpg.jpg";
-import expressImage from "../../assets/images/Curs_Modul_Express.jpg";
 import freeImage from "../../assets/images/Curs_Gratis.jpeg";
 import { motion } from "framer-motion";
 
@@ -13,7 +12,7 @@ export const HeroCard: React.FC<{
   date: string;
   link: string;
   text: string;
-  type: 'standard' | 'express' | 'exclusive' | 'free';
+  type: 'standard' | 'exclusive' | 'free';
 }> = ({ imgSrc, description, date, link, text, type }) => {
   return (
     <div className="relative min-h-[520px] max-w-[368px] h-96 rounded-2xl overflow-hidden shadow-lg m-8 group transition-transform transform hover:scale-105">
@@ -71,11 +70,19 @@ export const CoursesComponentDemo: FC<{
                 WebkitBackgroundClip: 'text',
               }}
             >
-              Cursuri 
+              Cursuri
             </motion.h1>
           </div>
         )}
-        <div className="grid gap-3 w-full max-w-[1520px] mx-auto grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-3 w-full max-w-[1520px] mx-auto grid-cols-1 md:grid-cols-2 xl:grid-cols-3 items-center">
+          <HeroCard
+            imgSrc={freeImage.src}
+            description="Modulul GRATUIT"
+            date="22.02.2024"
+            link="/courses/free"
+            text="Daca ai vrea sa te intri in domeniul extensiilor de gene dar inca nu esti sigura ca te vei descurca financiar ,eu am creat pentru tine acest webinar informativ si GRATUIT unde vei afla costurile reale ale acestei meserii frumoase"
+            type="free"
+          />
           <HeroCard
             imgSrc={standardImage.src}
             description="Modulul STANDARD"
@@ -83,14 +90,6 @@ export const CoursesComponentDemo: FC<{
             link="/courses/standard"
             text="🧠Am gândit acest modul introductiv de extensii de gene pentru persoanele care NU SUNT ÎNCĂ SIGURE dacă vor să urmeze o carieră în acest domeniu fascinant, dar doresc să ÎNCERCE și să vadă dacă LE PLACE."
             type="standard"
-          />
-          <HeroCard
-            imgSrc={expressImage.src}
-            description="Modulul EXPRESS"
-            date="21.02.2024"
-            link="/courses/express"
-            text="🧠Am gândit acest modul introductiv de extensii de gene pentru persoanele care NU SUNT ÎNCĂ SIGURE dacă vor să urmeze o carieră în acest domeniu fascinant, dar doresc să ÎNCERCE și să vadă dacă LE PLACE."
-            type="express"
           />
           <HeroCard
             imgSrc={premiumImage.src}
