@@ -76,14 +76,6 @@ export const CoursesComponentDemo: FC<{
         )}
         <div className="grid gap-3 w-full max-w-[1520px] mx-auto grid-cols-1 md:grid-cols-2 xl:grid-cols-3 items-center">
           <HeroCard
-            imgSrc={freeImage.src}
-            description="Modulul GRATUIT"
-            date="22.02.2024"
-            link="/courses/free"
-            text="Daca ai vrea sa te intri in domeniul extensiilor de gene dar inca nu esti sigura ca te vei descurca financiar ,eu am creat pentru tine acest webinar informativ si GRATUIT unde vei afla costurile reale ale acestei meserii frumoase"
-            type="free"
-          />
-          <HeroCard
             imgSrc={standardImage.src}
             description="Modulul STANDARD"
             date="20.02.2024"
