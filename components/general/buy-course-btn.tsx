@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";  // Adjust with your button component import
-import { toast } from "sonner";  // Adjust with your notification library import
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";  // Adjust with your modal component import
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Product } from "@/app/courses/exclusive/page";
 import { CONST_ADVANCE_PAYMENT_PRICE, CONST_EXCLUSIVE_COURSE_PRICE, CONST_EXCLUSIVE_COURSE_RATES } from "@/constants/courses/data";
 
@@ -9,7 +9,7 @@ interface BuyCourseButtonProps {
     session: { isSignedIn: boolean };
     isLoading: boolean;
     handleIntegralPay: (product: Product) => Promise<void>;
-    product: Product; // Add product prop to pass in from the parent component
+    product: Product;
 }
 
 const BuyCourseButton: React.FC<BuyCourseButtonProps> = ({
@@ -25,7 +25,7 @@ const BuyCourseButton: React.FC<BuyCourseButtonProps> = ({
         if (!session.isSignedIn) {
             toast.warning("Trebuie să fii autentificat pentru a putea achiziționa acest curs");
         } else {
-            setOpen(true); // Deschide modalul dacă utilizatorul este autentificat
+            setOpen(true);
         }
     };
 
