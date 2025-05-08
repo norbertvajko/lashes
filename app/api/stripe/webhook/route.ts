@@ -90,8 +90,6 @@ export async function POST(request: NextRequest) {
                     },
                 });
 
-                console.log("Order saved:", order);
-
                 //trimititere mail cu, contractul
                 await fetch(`${baseUrl}/api/emails/contract`, {
                     method: "POST",

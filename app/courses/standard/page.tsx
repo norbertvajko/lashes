@@ -3,13 +3,11 @@
 import React, { useState } from 'react';
 import standarModuleImg from "../../../assets/images/Curs_Modul_Standard.jpg";
 import { useRouter } from 'next/navigation';
-import { RatingReviews } from '@/components/general/rating-reviews';
 import { Product } from '../exclusive/page';
 import { useSession } from "@clerk/nextjs";
-import { toast } from 'sonner';
 import axios from 'axios';
-import { Button } from '@/components/ui/button';
-import { CONST_ADVANCE_PAYMENT_PRICE, CONST_STANDARD_COURSE_PRICE } from '@/constants/courses/data';
+import { CONST_ADVANCE_PAYMENT_PRICE, CONST_STANDARD_COURSE_PRICE, CONST_STANDARD_COURSE_RATES } from '@/constants/courses/data';
+import BuyCourseButton from '@/components/general/buy-course-btn';
 
 interface ModalProps {
     isOpen: boolean;      // Determines if the modal is open or not
@@ -60,13 +58,11 @@ const Breadcrumb: React.FC = () => {
 
 const StandardCourse = () => {
     const [showModal, setShowModal] = useState<boolean>(false);
-        const [isLoading, setIsLoading] = useState(false); // State to track loading status
-    
+    const [isLoading, setIsLoading] = useState(false); // State to track loading status
+
 
     const handleOpenModal = () => setShowModal(true);
     const handleCloseModal = () => setShowModal(false);
-
-    const router = useRouter();
 
     const session = useSession();
 
@@ -74,37 +70,6 @@ const StandardCourse = () => {
         name: "Modul Standard",
         image: "https://ll-lashes.ro/assets/images/Curs_Modul_Standard.jpg",
         price: CONST_ADVANCE_PAYMENT_PRICE * 100,
-    };
-
-    const handlePay = async (product: Product) => {
-        setIsLoading(true); // Set loading to true when payment is being processed
-
-        const totalAmount = CONST_STANDARD_COURSE_PRICE * 100;
-
-        const payload = {
-            ...product,
-            totalAmount, // Include the calculated totalAmount
-        };
-
-        try {
-            const res = await axios.post('/api/stripe/checkout', payload, {
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            });
-
-            const session = res.data;
-
-            if (session.url) {
-                window.location.href = session.url; // Redirect to Stripe checkout
-            } else {
-                console.error("Failed to create session:", session.error);
-            }
-        } catch (error) {
-            console.error("Error during payment request:", error);
-        } finally {
-            setIsLoading(false); // Reset loading state once the request is complete
-        }
     };
 
     const initialPoints = [
@@ -140,6 +105,37 @@ const StandardCourse = () => {
         "KIT CU PRODUSE în valoare de 950 RON"
     ];
 
+    const handleIntegralPay = async (product: Product) => {
+        setIsLoading(true); // Set loading to true when payment is being processed
+
+        const totalAmount = CONST_STANDARD_COURSE_PRICE * 100;
+
+        const payload = {
+            ...product,
+            totalAmount,
+        };
+
+        try {
+            const res = await axios.post('/api/stripe/checkout', payload, {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+
+            const session = res.data;
+
+            if (session.url) {
+                window.location.href = session.url; // Redirect to Stripe checkout
+            } else {
+                console.error("Failed to create session:", session.error);
+            }
+        } catch (error) {
+            console.error("Error during payment request:", error);
+        } finally {
+            setIsLoading(false); // Reset loading state once the request is complete
+        }
+    };
+
     return (
         <div className="flex flex-col md:flex-row items-center justify-center sm:mt-0 mb-7">
             <div className="w-full max-w-5xl">
@@ -164,21 +160,29 @@ const StandardCourse = () => {
 
                             <h2 className="mt-4 text-2xl font-bold">Curs de baza 1-3D</h2>
 
-                            <div className="flex mt-2 mb-4 items-center">
-                                {Array(5).fill(null).map((_, index) => (
-                                    <span key={index}>
-                                        <i className="bx bxs-star text-yellow-500"></i>
+                            <div className="flex flex-col gap-1 mt-2">
+                                <div className="flex items-center">
+                                    <span className="text-2xl font-bold text-green-600">
+                                        {CONST_STANDARD_COURSE_PRICE} RON
                                     </span>
-                                ))}
-                                <RatingReviews ratingScore={5} />
-                            </div>
+                                    <span className="text-md font-semibold text-gray-700 ml-3">
+                                        – Plata integrală
+                                    </span>
+                                </div>
 
-                            <div className="flex items-center mt-2">
-                            <span className="text-4xl font-bold">
-                                    {new Intl.NumberFormat('ro-RO').format(CONST_STANDARD_COURSE_PRICE)} RON
-                                </span>                                <div className='flex flex-col'>
-                                    <span className="text-lg font-medium line-through text-gray-500 ml-2">3.800 RON</span>
-                                    <span className="text-xs font-semibold text-gray-500 ml-2">1.000 RON - AVANS</span>
+                                <div className="flex items-center">
+                                    <span className="text-2xl font-bold text-blue-600">
+                                        {CONST_STANDARD_COURSE_RATES} RON
+                                    </span>
+                                    <div className="flex flex-col ml-3">
+                                        <span className="text-md font-semibold text-gray-700">
+                                            – Plata în 3 rate
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="mt-2 text-sm font-semibold text-gray-600">
+                                    * Avansul de <span className="text-black">{CONST_ADVANCE_PAYMENT_PRICE} RON</span> este necesar indiferent de opțiunea aleasă.
                                 </div>
                             </div>
 
@@ -239,20 +243,12 @@ const StandardCourse = () => {
                             </div>
 
                             <hr className="my-4 border-gray-300" />
-                            <Button
-                                onClick={() => {
-                                    if(!session.isSignedIn) {
-                                        toast.warning("Trebuie sa fii autentificat pentru a putea achizitiona acest curs")
-                                    }
-                                    else {
-                                        handlePay(product)
-                                    }
-                                }}
-                                disabled={isLoading}
-                                className="flex items-center justify-center bg-gradient-to-r from-red-500 to-yellow-500 text-white font-bold rounded px-4 py-2 hover:from-red-600 hover:to-yellow-600"
-                            >
-                                <i className="bx bxs-zap"></i> Cumpara acum
-                            </Button>
+                            <BuyCourseButton
+                                session={{ isSignedIn: session.isSignedIn || false }}
+                                isLoading={isLoading} // Pass loading state
+                                handleIntegralPay={handleIntegralPay} // Pass the handleIntegralPay function
+                                product={product} // Pass product data
+                            />
                         </div>
                     </div>
                 </div>

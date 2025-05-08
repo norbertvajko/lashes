@@ -3,12 +3,10 @@
 import React, { useState } from 'react';
 import exclusiveCourseImg from "../../../assets/images/Curs_Modul_Exclusiv.jpg.jpg";
 import { useRouter } from 'next/navigation';
-import { RatingReviews } from '@/components/general/rating-reviews';
 import axios from 'axios';
 import { useSession } from '@clerk/nextjs';
-import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
-import { CONST_ADVANCE_PAYMENT_PRICE, CONST_EXCLUSIVE_COURSE_PRICE } from '@/constants/courses/data';
+import { CONST_ADVANCE_PAYMENT_PRICE, CONST_EXCLUSIVE_COURSE_PRICE, CONST_EXCLUSIVE_COURSE_RATES } from '@/constants/courses/data';
+import BuyCourseButton from '@/components/general/buy-course-btn';
 
 export type Product = {
     name: string;
@@ -114,7 +112,7 @@ const ExclusiveCourse = () => {
 
     const [isLoading, setIsLoading] = useState(false); // State to track loading status
 
-    const handlePay = async (product: Product) => {
+    const handleIntegralPay = async (product: Product) => {
         setIsLoading(true); // Set loading to true when payment is being processed
 
         const totalAmount = CONST_EXCLUSIVE_COURSE_PRICE * 100;
@@ -152,7 +150,7 @@ const ExclusiveCourse = () => {
                     {/* Product Image Section */}
                     <div className="w-full md:w-1/2">
                         <div className="relative w-full">
-                            <div className=" bg-gray-200">
+                            <div className="bg-gray-200">
                                 <img
                                     src={exclusiveCourseImg.src}
                                     alt=""
@@ -169,22 +167,29 @@ const ExclusiveCourse = () => {
 
                             <h2 className="mt-4 text-2xl font-bold">Modul Exclusive</h2>
 
-                            <div className="flex mt-2 mb-4 items-center">
-                                {Array(5).fill(null).map((_, index) => (
-                                    <span key={index}>
-                                        <i className="bx bxs-star text-yellow-500"></i>
+                            <div className="flex flex-col gap-1 mt-2">
+                                <div className="flex items-center">
+                                    <span className="text-2xl font-bold text-green-600">
+                                        {CONST_EXCLUSIVE_COURSE_PRICE} RON
                                     </span>
-                                ))}
-                                <RatingReviews ratingScore={5} />
-                            </div>
+                                    <span className="text-md font-semibold text-gray-700 ml-3">
+                                        – Plata integrală
+                                    </span>
+                                </div>
 
-                            <div className="flex items-center mt-2">
-                                <span className="text-4xl font-bold">
-                                    {new Intl.NumberFormat('ro-RO').format(CONST_EXCLUSIVE_COURSE_PRICE)} RON
-                                </span>
-                                <div className='flex flex-col'>
-                                    <span className="text-lg font-medium line-through text-gray-500 ml-2">5.500 RON</span>
-                                    <span className="text-xs font-semibold text-gray-500 ml-2">1.000 RON - AVANS</span>
+                                <div className="flex items-center">
+                                    <span className="text-2xl font-bold text-blue-600">
+                                        {CONST_EXCLUSIVE_COURSE_RATES} RON
+                                    </span>
+                                    <div className="flex flex-col ml-3">
+                                        <span className="text-md font-semibold text-gray-700">
+                                            – Plata în 3 rate
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="mt-2 text-sm font-semibold text-gray-600">
+                                    * Avansul de <span className="text-black">{CONST_ADVANCE_PAYMENT_PRICE} RON</span> este necesar indiferent de opțiunea aleasă.
                                 </div>
                             </div>
 
@@ -236,7 +241,6 @@ const ExclusiveCourse = () => {
                                             placeholder="Cod promo.."
                                         />
 
-                                        {/* Înlocuit SVG cu emoji */}
                                         <span className="absolute w-3 h-3 top-1 right-5 text-slate-600 text-xl">
                                             🏷️
                                         </span>
@@ -245,22 +249,13 @@ const ExclusiveCourse = () => {
                             </div>
 
                             <hr className="my-4 border-gray-300" />
-                            <Button
-                                onClick={() => {
-                                    if (!session.isSignedIn) {
-                                        toast.warning("Trebuie sa fii autentificat pentru a putea achizitiona acest curs")
-                                    }
-                                    else {
-                                        handlePay(product)
-                                    }
-                                }}
-                                disabled={isLoading}
-                                className="flex items-center justify-center bg-gradient-to-r from-red-500 to-yellow-500 text-white font-bold rounded px-4 py-2 hover:from-red-600 hover:to-yellow-600"
-                            >
-                                <i className="bx bxs-zap"></i> Cumpara acum
-                            </Button>
+                            <BuyCourseButton
+                                session={{ isSignedIn: session.isSignedIn || false }}
+                                isLoading={isLoading} // Pass loading state
+                                handleIntegralPay={handleIntegralPay} // Pass the handleIntegralPay function
+                                product={product} // Pass product data
+                            />
                         </div>
-
                     </div>
                 </div>
             </div>
