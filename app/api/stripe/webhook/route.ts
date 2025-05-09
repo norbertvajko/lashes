@@ -29,7 +29,9 @@ export async function POST(request: NextRequest) {
         const session = event.data.object as Stripe.Checkout.Session;
 
         const clerkUserId = session.client_reference_id!; // Clerk user ID from the Stripe session
+
         const totalAmountFromMetadata = session.metadata?.totalAmount; // Fetch totalAmount from metadata
+        const hasRatesFromMetadata = session.metadata?.hasRates === "true";
 
         if (!totalAmountFromMetadata) {
             console.log("Total amount is missing in metadata.");
@@ -87,6 +89,7 @@ export async function POST(request: NextRequest) {
                         advance: price, // Use the price extracted from line_items
                         total: totalAmount, // Ensure total is a float
                         status: status,
+                        hasRates: hasRatesFromMetadata
                     },
                 });
 
@@ -107,5 +110,5 @@ export async function POST(request: NextRequest) {
         }
     }
 
-    return NextResponse.json("Webhook processed successfully");
+  return NextResponse.json("Webhook processed successfully");
 }

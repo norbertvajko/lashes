@@ -43,6 +43,8 @@ model Order {
   total     Float
   date      DateTime @default(now())
   status    String
+  hasRates  Boolean  @default(false)
+  //TODO add nr rate 
 }
 
 model FavoriteCourses {

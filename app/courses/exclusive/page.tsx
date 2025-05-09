@@ -5,34 +5,19 @@ import exclusiveCourseImg from "../../../assets/images/Curs_Modul_Exclusiv.jpg.j
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { useSession } from '@clerk/nextjs';
-import { CONST_ADVANCE_PAYMENT_PRICE, CONST_EXCLUSIVE_COURSE_PRICE, CONST_EXCLUSIVE_COURSE_RATES } from '@/constants/courses/data';
+import { CONST_ADVANCE_PAYMENT_PRICE, CONST_EXCLUSIVE_COURSE_PRICE, CONST_EXCLUSIVE_COURSE_RATES_PRICE } from '@/constants/courses/data';
 import BuyCourseButton from '@/components/general/buy-course-btn';
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
 
 export type Product = {
     name: string;
     image: string;
     price: number;
-};
-
-interface ModalProps {
-    isOpen: boolean;      // Determines if the modal is open or not
-    onClose: () => void;  // Function to call when closing the modal
-    children: React.ReactNode; // The content to display inside the modal
-}
-
-const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
-    if (!isOpen) return null; // If modal is not open, return null
-
-    return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white p-6 rounded shadow-lg max-w-md w-full">
-                <button className="absolute top-2 right-2 text-gray-600" onClick={onClose}>
-                    ✖️
-                </button>
-                {children} {/* Display the content passed to the modal */}
-            </div>
-        </div>
-    );
 };
 
 const Breadcrumb: React.FC = () => {
@@ -113,7 +98,7 @@ const ExclusiveCourse = () => {
     const [isLoading, setIsLoading] = useState(false); // State to track loading status
 
     const handleIntegralPay = async (product: Product) => {
-        setIsLoading(true); // Set loading to true when payment is being processed
+        setIsLoading(true);
 
         const totalAmount = CONST_EXCLUSIVE_COURSE_PRICE * 100;
 
@@ -139,7 +124,41 @@ const ExclusiveCourse = () => {
         } catch (error) {
             console.error("Error during payment request:", error);
         } finally {
-            setIsLoading(false); // Reset loading state once the request is complete
+            setIsLoading(false);
+        }
+    };
+
+    const handleRatePay = async (product: Product) => {
+        setIsLoading(true);
+    
+        const totalAmount = CONST_EXCLUSIVE_COURSE_RATES_PRICE * 100;
+    
+        const payload = {
+            ...product,
+            totalAmount,
+            hasRates: true, 
+        };
+
+        console.log(payload);
+    
+        try {
+            const res = await axios.post('/api/stripe/checkout', payload, {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+    
+            const session = res.data;
+    
+            if (session.url) {
+                window.location.href = session.url; // Redirect to Stripe checkout
+            } else {
+                console.error("Failed to create session:", session.error);
+            }
+        } catch (error) {
+            console.error("Error during payment request:", error);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -179,7 +198,7 @@ const ExclusiveCourse = () => {
 
                                 <div className="flex items-center">
                                     <span className="text-2xl font-bold text-blue-600">
-                                        {CONST_EXCLUSIVE_COURSE_RATES} RON
+                                        {CONST_EXCLUSIVE_COURSE_RATES_PRICE} RON
                                     </span>
                                     <div className="flex flex-col ml-3">
                                         <span className="text-md font-semibold text-gray-700">
@@ -196,7 +215,7 @@ const ExclusiveCourse = () => {
                             <div className="mt-4">
                                 <h3 className="text-lg font-bold">Descriere</h3>
                                 <p className="mt-2 text-sm leading-5">
-                                    🧠Acest modul este gândit ca un curs de baza+o perfecționare <u>SUPER INTENSIV</u> ca tu să poți imediat dupa curs să ai cliente pe bani. 💰
+                                    🧠Acest modul este gândit ca un curs de baza+o perfecționare <u><b>SUPER INTENSIV</b></u> ca tu să poți imediat dupa curs să ai cliente pe bani. 💰
                                 </p>
                                 <p className='text-sm pt-3 font-semibold'>Cursul meu este simplu și accesibil, ideal pentru începători🐣. </p>
                             </div>
@@ -218,17 +237,21 @@ const ExclusiveCourse = () => {
                                         Vezi lista intreaga
                                     </button>
                                 )}
-                                <Modal isOpen={showModal} onClose={handleCloseModal}>
-                                    <h4 className="text-md font-bold">📚 Ce vei învăța la curs?</h4>
-                                    <ul className="list-disc list-inside mt-4">
-                                        {initialPoints.concat(additionalPoints).map((point, index) => (
-                                            <li key={index} className="flex items-center">
-                                                <span className="text-green-500 mr-2">💎</span>
-                                                {point}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </Modal>
+                                <Dialog open={showModal} onOpenChange={handleCloseModal}>
+                                    <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto z-[99999999999999]">
+                                        <DialogHeader>
+                                            <DialogTitle>📚 Ce vei învăța la curs?</DialogTitle>
+                                        </DialogHeader>
+                                        <ul className="list-disc list-inside mt-4 space-y-2">
+                                            {initialPoints.concat(additionalPoints).map((point, index) => (
+                                                <li key={index} className="flex items-start">
+                                                    <span className="text-green-500 mr-2 mt-0.5">💎</span>
+                                                    {point}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </DialogContent>
+                                </Dialog>
                             </div>
                             {/* Color Selection */}
                             <div className="mt-4">
@@ -252,8 +275,9 @@ const ExclusiveCourse = () => {
                             <BuyCourseButton
                                 session={{ isSignedIn: session.isSignedIn || false }}
                                 isLoading={isLoading} // Pass loading state
-                                handleIntegralPay={handleIntegralPay} // Pass the handleIntegralPay function
-                                product={product} // Pass product data
+                                handleIntegralPay={handleIntegralPay}
+                                handleRatePay={handleRatePay}
+                                product={product}
                             />
                         </div>
                     </div>

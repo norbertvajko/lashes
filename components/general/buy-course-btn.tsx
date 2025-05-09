@@ -3,12 +3,14 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Product } from "@/app/courses/exclusive/page";
-import { CONST_ADVANCE_PAYMENT_PRICE, CONST_EXCLUSIVE_COURSE_PRICE, CONST_EXCLUSIVE_COURSE_RATES } from "@/constants/courses/data";
+import { CONST_ADVANCE_PAYMENT_PRICE, CONST_EXCLUSIVE_COURSE_PRICE, CONST_EXCLUSIVE_COURSE_RATES_PRICE, CONST_STANDARD_COURSE_PRICE, CONST_STANDARD_COURSE_RATES_PRICE } from "@/constants/courses/data";
+import { usePathname } from "next/navigation";
 
 interface BuyCourseButtonProps {
     session: { isSignedIn: boolean };
     isLoading: boolean;
     handleIntegralPay: (product: Product) => Promise<void>;
+    handleRatePay: (product: Product) => Promise<void>;
     product: Product;
 }
 
@@ -16,11 +18,29 @@ const BuyCourseButton: React.FC<BuyCourseButtonProps> = ({
     session,
     isLoading,
     handleIntegralPay,
+    handleRatePay,
     product,
 }) => {
     const [open, setOpen] = useState(false);
 
-    // Logica pentru deschiderea modalei
+    const pathname = usePathname();
+
+    const isStandardCourse = pathname === "/courses/standard";
+    const isExclusiveCourse = pathname === "/courses/exclusive";
+    
+    let integralPrice: number = 0;
+    let courseRatePrice: number = 0;
+    
+    if (isStandardCourse) {
+        integralPrice = CONST_STANDARD_COURSE_PRICE;
+        courseRatePrice = CONST_STANDARD_COURSE_RATES_PRICE;
+    } 
+    
+    if (isExclusiveCourse) {
+        integralPrice = CONST_EXCLUSIVE_COURSE_PRICE;
+        courseRatePrice = CONST_EXCLUSIVE_COURSE_RATES_PRICE;
+    }
+
     const handleButtonClick = () => {
         if (!session.isSignedIn) {
             toast.warning("Trebuie să fii autentificat pentru a putea achiziționa acest curs");
@@ -37,8 +57,7 @@ const BuyCourseButton: React.FC<BuyCourseButtonProps> = ({
         if (paymentMethod === "integral") {
             handleIntegralPay(product);
         } else if (paymentMethod === "rate") {
-            console.log("Plata în rate pentru produs:");
-            // Aici adaugi logica de procesare a plății pentru plata în rate
+            handleRatePay(product);
         }
     };
 
@@ -55,7 +74,7 @@ const BuyCourseButton: React.FC<BuyCourseButtonProps> = ({
 
             {/* Modalul pentru alegerea metodei de plată */}
             <Dialog open={open} onOpenChange={setOpen}>
-                <DialogContent>
+                <DialogContent className="px-2.5 md:px-8">
                     <DialogHeader>
                         <DialogTitle>Alege tipul de plată</DialogTitle>
                     </DialogHeader>
@@ -67,7 +86,7 @@ const BuyCourseButton: React.FC<BuyCourseButtonProps> = ({
                             className="justify-between"
                             onClick={() => handleOption("integral")}
                         >
-                            Plata integrală – {CONST_EXCLUSIVE_COURSE_PRICE} RON ({CONST_ADVANCE_PAYMENT_PRICE} RON avans)
+                            Plata integrală – {integralPrice} RON ({CONST_ADVANCE_PAYMENT_PRICE} RON avans)
                         </Button>
 
                         {/* Opțiunea pentru plata în rate */}
@@ -76,7 +95,7 @@ const BuyCourseButton: React.FC<BuyCourseButtonProps> = ({
                             className="justify-between"
                             onClick={() => handleOption("rate")}
                         >
-                            Plata în 3 rate – {CONST_EXCLUSIVE_COURSE_RATES} RON ({CONST_ADVANCE_PAYMENT_PRICE} RON avans)
+                            Plata în 3 rate – {courseRatePrice} RON ({CONST_ADVANCE_PAYMENT_PRICE} RON avans)
                         </Button>
                     </div>
                 </DialogContent>

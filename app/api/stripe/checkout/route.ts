@@ -38,6 +38,7 @@ export async function POST(request: NextRequest) {
                 payment_method_types: ["card"],
                 metadata: {
                     totalAmount: body.totalAmount, 
+                    hasRates: body.hasRates ? "true" : "false",
                 },
             });
     

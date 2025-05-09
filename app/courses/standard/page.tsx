@@ -6,29 +6,14 @@ import { useRouter } from 'next/navigation';
 import { Product } from '../exclusive/page';
 import { useSession } from "@clerk/nextjs";
 import axios from 'axios';
-import { CONST_ADVANCE_PAYMENT_PRICE, CONST_STANDARD_COURSE_PRICE, CONST_STANDARD_COURSE_RATES } from '@/constants/courses/data';
+import { CONST_ADVANCE_PAYMENT_PRICE, CONST_STANDARD_COURSE_PRICE, CONST_STANDARD_COURSE_RATES_PRICE } from '@/constants/courses/data';
 import BuyCourseButton from '@/components/general/buy-course-btn';
-
-interface ModalProps {
-    isOpen: boolean;      // Determines if the modal is open or not
-    onClose: () => void;  // Function to call when closing the modal
-    children: React.ReactNode; // The content to display inside the modal
-}
-
-const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
-    if (!isOpen) return null; // If modal is not open, return null
-
-    return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white p-6 rounded shadow-lg max-w-md w-full">
-                <button className="absolute top-2 right-2 text-gray-600" onClick={onClose}>
-                    ✖️
-                </button>
-                {children} {/* Display the content passed to the modal */}
-            </div>
-        </div>
-    );
-};
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
 
 const Breadcrumb: React.FC = () => {
     const router = useRouter();
@@ -58,7 +43,7 @@ const Breadcrumb: React.FC = () => {
 
 const StandardCourse = () => {
     const [showModal, setShowModal] = useState<boolean>(false);
-    const [isLoading, setIsLoading] = useState(false); // State to track loading status
+    const [isLoading, setIsLoading] = useState(false);
 
 
     const handleOpenModal = () => setShowModal(true);
@@ -136,6 +121,38 @@ const StandardCourse = () => {
         }
     };
 
+        const handleRatePay = async (product: Product) => {
+            setIsLoading(true);
+        
+            const totalAmount = CONST_STANDARD_COURSE_RATES_PRICE * 100;
+        
+            const payload = {
+                ...product,
+                totalAmount,
+                hasRates: true, 
+            };
+        
+            try {
+                const res = await axios.post('/api/stripe/checkout', payload, {
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                });
+        
+                const session = res.data;
+        
+                if (session.url) {
+                    window.location.href = session.url; // Redirect to Stripe checkout
+                } else {
+                    console.error("Failed to create session:", session.error);
+                }
+            } catch (error) {
+                console.error("Error during payment request:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
     return (
         <div className="flex flex-col md:flex-row items-center justify-center sm:mt-0 mb-7">
             <div className="w-full max-w-5xl">
@@ -172,7 +189,7 @@ const StandardCourse = () => {
 
                                 <div className="flex items-center">
                                     <span className="text-2xl font-bold text-blue-600">
-                                        {CONST_STANDARD_COURSE_RATES} RON
+                                        {CONST_STANDARD_COURSE_RATES_PRICE} RON
                                     </span>
                                     <div className="flex flex-col ml-3">
                                         <span className="text-md font-semibold text-gray-700">
@@ -211,17 +228,21 @@ const StandardCourse = () => {
                                         Vezi lista intreaga
                                     </button>
                                 )}
-                                <Modal isOpen={showModal} onClose={handleCloseModal}>
-                                    <h4 className="text-md font-bold">📚 Ce vei învăța la curs?</h4>
-                                    <ul className="list-disc list-inside mt-4">
-                                        {initialPoints.concat(additionalPoints).map((point, index) => (
-                                            <li key={index} className="flex items-center">
-                                                <span className="text-green-500 mr-2">💎</span>
-                                                {point}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </Modal>
+                                <Dialog open={showModal} onOpenChange={handleCloseModal}>
+                                    <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto z-[99999999999999]">
+                                        <DialogHeader>
+                                            <DialogTitle>📚 Ce vei învăța la curs?</DialogTitle>
+                                        </DialogHeader>
+                                        <ul className="list-disc list-inside mt-4 space-y-2">
+                                            {initialPoints.concat(additionalPoints).map((point, index) => (
+                                                <li key={index} className="flex items-start">
+                                                    <span className="text-green-500 mr-2 mt-0.5">💎</span>
+                                                    {point}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </DialogContent>
+                                </Dialog>
                             </div>
                             {/* Color Selection */}
                             <div className="mt-4">
@@ -245,9 +266,10 @@ const StandardCourse = () => {
                             <hr className="my-4 border-gray-300" />
                             <BuyCourseButton
                                 session={{ isSignedIn: session.isSignedIn || false }}
-                                isLoading={isLoading} // Pass loading state
-                                handleIntegralPay={handleIntegralPay} // Pass the handleIntegralPay function
-                                product={product} // Pass product data
+                                isLoading={isLoading} 
+                                handleIntegralPay={handleIntegralPay}
+                                product={product}
+                                handleRatePay={handleRatePay} 
                             />
                         </div>
                     </div>

@@ -16,6 +16,7 @@ type Order = {
     advance: string;
     total: string;
     status: string;
+    hasRates: boolean;
 };
 
 type CustomModalProps = {
@@ -48,7 +49,6 @@ export default function OrdersPage() {
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null); // State for error message
     const [successMessage, setSuccessMessage] = useState<string | null>(null); // State for success message
-    const [isPaid, setIsPaid] = useState(false);
 
     const router = useRouter();
 
@@ -94,8 +94,8 @@ export default function OrdersPage() {
     const closeModal = () => {
         setModalOpen(false);
         setSelectedOrder(null);
-        setErrorMessage(null); // Reset error message
-        setSuccessMessage(null); // Reset success message
+        setErrorMessage(null);
+        setSuccessMessage(null);
     };
 
     const handleCompletePay = async () => {
@@ -172,6 +172,27 @@ export default function OrdersPage() {
         }
     };
 
+    let nextPaymentDate = null;
+
+    if (selectedOrder?.hasRates) {
+        // Creăm un obiect Date din selectedOrder.date
+        const orderDate = new Date(selectedOrder.date);
+
+        // Adăugăm 30 de zile la data curentă
+        orderDate.setDate(orderDate.getDate() + 30);
+
+        // Setăm ora la 12:00 PM pentru plata următoare
+        orderDate.setHours(12, 0, 0, 0);
+
+        // Salvează data și timpul final
+        nextPaymentDate = orderDate;
+    }
+
+    // Formatarea datei în formatul 08.06.2025
+    const nextPaymentDateS = nextPaymentDate
+        ? `${nextPaymentDate.getDate().toString().padStart(2, '0')}.${(nextPaymentDate.getMonth() + 1).toString().padStart(2, '0')}.${nextPaymentDate.getFullYear()}`
+        : null;
+
     if (isLoading) {
         return <PageLoader />;
     }
@@ -241,7 +262,7 @@ export default function OrdersPage() {
                     ) : (
                         <div className="text-center">
                             <img src="/assets/images/no-courses.png" alt="Nu exista cursuri" className="w-48 mx-auto mb-4" />
-                            <Button onClick={navigateToCourses} className="text-white bg-gradient-to-br from-pink-500 to-orange-400 hover:bg-gradient-to-bl focus:outline-none focus:ring-0 font-medium text-sm px-5 py-2.5 text-center">
+                            <Button onClick={navigateToCourses}>
                                 Descoperă Cursurile
                             </Button>
                         </div>
@@ -254,26 +275,54 @@ export default function OrdersPage() {
                     <CustomModal isOpen={isModalOpen} onClose={closeModal}>
                         {selectedOrder && (
                             <div>
-                                <h2 className="text-xl font-semibold mb-4 text-center text-black">Detalii Comandă</h2>
+                                <h2 className="text-xl font-semibold mb-4 text-center text-black">Detalii comandă</h2>
                                 <p className="mb-2"><strong>ID Comandă:</strong> {selectedOrder.id}</p>
                                 <p className="mb-2"><strong>Data:</strong> {new Date(selectedOrder.date).toLocaleDateString('ro-RO')}</p>
                                 <p className="mb-2"><strong>Curs:</strong> {selectedOrder.course}</p>
                                 <p className="mb-2"><strong>Avans:</strong> {CONST_ADVANCE_PAYMENT_PRICE} RON ✅</p>
-                                <p className="mb-4"><strong>Total:</strong> {selectedOrder.total} RON {selectedOrder.status === "Plata finalizata" ? '✅' : ''}</p>
-                                <p className="mb-4"><strong>Rest plata:</strong> {selectedOrder.status === "Plata finalizata" ? 0 : Number(selectedOrder.total) - Number(selectedOrder.advance)} RON</p>
+
+                                <p className="mb-2"><strong>Total de plata:</strong> {selectedOrder.total} RON {selectedOrder.status === "Plata finalizata" ? '✅' : ''}</p>
+
+                                {selectedOrder.status !== "Plata finalizata" && selectedOrder.hasRates ? (
+                                    <>
+                                        <p className="mb-2">
+                                            <strong>Rest de plată:</strong> {Number(selectedOrder.total) - Number(selectedOrder.advance)} RON
+                                        </p>
+                                        <p className="mb-2">
+                                            <strong>Sumă de plată per rată: </strong>
+                                            {((Number(selectedOrder.total) - Number(selectedOrder.advance)) / 3).toFixed(0)} RON
+                                        </p>
+                                        <p className="mb-2">
+                                            <strong>Termen plată rată curentă:</strong> {nextPaymentDateS}
+                                        </p>
+                                    </>
+                                ) : (
+                                    <p className="mb-2"><strong>Rest de plată:</strong> {selectedOrder.status === "Plata finalizata" ? 0 : Number(selectedOrder.total) - Number(selectedOrder.advance)} RON</p>
+                                )}
+
                                 <p className="mb-4"><strong>Status:</strong> {selectedOrder.status}</p>
 
                                 <div className="text-center flex flex-col gap-2">
                                     {selectedOrder.status !== "Plata finalizata" ? (
-                                        <Button
-                                            variant="primary"
-                                            onClick={handleStatusUpdate}
-                                            className="bg-black text-white hover:bg-gray-800"
-                                        >
-                                            Plateste diferenta
-                                        </Button>
+                                        selectedOrder.hasRates ? (
+                                            <Button
+                                                variant="primary"
+                                                //TODO platește rata curentă
+                                                onClick={() => {}}
+                                                className="bg-black text-white hover:bg-gray-800"
+                                            >
+                                                Plătește rata curentă
+                                            </Button>
+                                        ) : (
+                                            <Button
+                                                variant="primary"
+                                                onClick={handleStatusUpdate}
+                                                className="bg-black text-white hover:bg-gray-800"
+                                            >
+                                                Plătește diferența
+                                            </Button>
+                                        )
                                     ) : null}
-
 
                                     <Button variant="outline" onClick={closeModal} className="bg-white text-black">
                                         Închide
