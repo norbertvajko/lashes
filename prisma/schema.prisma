@@ -38,13 +38,15 @@ model Order {
   id        Int      @id @default(autoincrement())
   user      User     @relation(fields: [userId], references: [id])
   userId    String
+  image     String @default("")
   course    String
   advance   Float
   total     Float
   date      DateTime @default(now())
   status    String
   hasRates  Boolean  @default(false)
-  //TODO add nr rate 
+  rateNumber Int? @default(1)
+  nextRateDate DateTime?
 }
 
 model FavoriteCourses {

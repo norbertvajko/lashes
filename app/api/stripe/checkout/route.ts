@@ -39,6 +39,7 @@ export async function POST(request: NextRequest) {
                 metadata: {
                     totalAmount: body.totalAmount, 
                     hasRates: body.hasRates ? "true" : "false",
+                    rateNumber: body.rateNumber ? body.rateNumber.toString() : "1",
                 },
             });
     

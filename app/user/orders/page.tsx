@@ -3,20 +3,23 @@
 import { useState, useEffect } from "react";
 import PageLoader from "@/components/page-loader";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useRouter } from "next/navigation";
 import { useSession } from "@clerk/nextjs";
-import { CONST_ADVANCE_PAYMENT_PRICE } from "@/constants/courses/data";
+import { CONST_ADVANCE_PAYMENT_PRICE, CONST_STANDARD_COURSE_RATE_PRICE, CONST_EXCLUSIVE_COURSE_RATE_PRICE } from "@/constants/courses/data";
 
 type Order = {
     id: number;
     customer: string;
+    image: string;
     date: string;
     course: string;
     advance: string;
     total: string;
     status: string;
     hasRates: boolean;
+    rateNumber?: number;
+    nextRateDate?: Date
 };
 
 type CustomModalProps = {
@@ -104,14 +107,26 @@ export default function OrdersPage() {
         const remainingAmount = Number(selectedOrder.total) - Number(selectedOrder.advance); // Calculăm restul de plată
         const amountInCents = Math.round(remainingAmount * 100); // Convertim suma la unități de monedă (RON -> bani, adică 1 RON = 100 bani)
 
+        // Verificăm dacă există rate
+        const hasRates = selectedOrder.hasRates ? true : false; // True dacă are rate, altfel false
+        const rateNumber = selectedOrder.rateNumber ? selectedOrder.rateNumber : 1; // Verificăm numărul ratei
+
+        // Calculăm suma de plată pentru o rată, dacă există rate
+        const rateAmountToPay = selectedOrder.hasRates && selectedOrder.course === "Modul Standard"
+            ? CONST_STANDARD_COURSE_RATE_PRICE
+            : selectedOrder.hasRates && selectedOrder.course === "Modul Exclusiv"
+                ? CONST_EXCLUSIVE_COURSE_RATE_PRICE
+                : remainingAmount.toFixed(0);
+
         // Construim payload-ul pentru Stripe
         const payload = {
             name: selectedOrder.course,
-            price: amountInCents,
-            totalAmount: Number(selectedOrder.total) * 100
+            image: selectedOrder.image,
+            price: hasRates ? Math.round(Number(rateAmountToPay) * 100) : amountInCents, // Dacă există rate, plata va fi pentru o rată
+            totalAmount: Number(selectedOrder.total) * 100,
         };
 
-        // Creăm sesiunea de checkout pentru restul de plată
+        // Creăm sesiunea de checkout pentru Stripe
         const res = await fetch('/api/stripe/checkout', {
             method: "POST",
             body: JSON.stringify(payload),
@@ -133,40 +148,48 @@ export default function OrdersPage() {
     const handleStatusUpdate = async () => {
         if (!selectedOrder) return;
 
-        await handleCompletePay(); // Creează checkout-ul Stripe pentru restul de plată
-
-        // După ce utilizatorul a plătit, actualizăm statusul
         const remainingAmount = Number(selectedOrder.total) - Number(selectedOrder.advance);
+
+        const rateAmountToPay = selectedOrder.hasRates && selectedOrder.course === "Modul Standard"
+            ? CONST_STANDARD_COURSE_RATE_PRICE
+            : selectedOrder.hasRates && selectedOrder.course === "Modul Exclusiv"
+                ? CONST_EXCLUSIVE_COURSE_RATE_PRICE
+                : remainingAmount.toFixed(0);
 
         const payload = {
             orderId: selectedOrder.id,
-            amount: remainingAmount,
+            image: selectedOrder.image,
+            amount: rateAmountToPay,
         };
 
         try {
-            const res = await fetch(`/api/user/orders/${selectedOrder.id}/complete`, {
-                method: "PATCH",
-                body: JSON.stringify(payload),
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            });
+            await handleCompletePay(); // Deschide checkout-ul Stripe
 
-            const data = await res.json();
-            if (data.success) {
-                setOrders(prevOrders =>
-                    prevOrders
-                        ? prevOrders.map(order =>
-                            order.id === selectedOrder.id
-                                ? { ...order, status: "Plata finalizata" }
-                                : order
-                        )
-                        : null
-                );
-                closeModal();
-            } else {
-                console.error("Plata nu a fost procesată corect.");
+            // ⚠️ Stripe va trimite un webhook dacă plata e reușită → actualizează în backend
+
+            // 🔁 Așteaptă un pic și apoi cere comanda actualizată din backend
+            await new Promise(resolve => setTimeout(resolve, 2000)); // așteaptă puțin ca Stripe să proceseze webhook-ul
+
+            const updatedOrderRes = await fetch(`/api/user/orders/${selectedOrder.id}`);
+            const updatedOrder = await updatedOrderRes.json();
+
+            if (!updatedOrder || updatedOrder.error) {
+                console.error("Comanda actualizată nu a fost găsită.");
+                return;
             }
+
+            // 🟢 Actualizează UI-ul cu datele corecte
+            setOrders(prevOrders =>
+                prevOrders
+                    ? prevOrders.map(order =>
+                        order.id === selectedOrder.id
+                            ? updatedOrder
+                            : order
+                    )
+                    : null
+            );
+
+            closeModal();
         } catch (error) {
             console.error("A apărut o eroare la procesarea plății:", error);
         }
@@ -244,7 +267,9 @@ export default function OrdersPage() {
                                             </div>
                                             <div className="md:table-cell px-6 py-4 text-black">
                                                 <span className="block md:hidden font-medium">Rest plata:</span>
-                                                {order.status === "Avans platit" ? Number(order.total) - Number(order.advance) : 0}
+                                                {(order.status === "Avans platit" || order.status.includes("Rata"))
+                                                    ? Number(order.total) - Number(order.advance)
+                                                    : 0}
                                             </div>
                                             <div className="md:table-cell px-6 py-4 text-black">
                                                 <span className="block md:hidden font-medium">Status:</span> {order.status}
@@ -286,12 +311,22 @@ export default function OrdersPage() {
                                 {selectedOrder.status !== "Plata finalizata" && selectedOrder.hasRates ? (
                                     <>
                                         <p className="mb-2">
-                                            <strong>Rest de plată:</strong> {Number(selectedOrder.total) - Number(selectedOrder.advance)} RON
+                                            <strong>Rest de plată:</strong>{" "}
+                                            {(Math.abs(Number(selectedOrder?.total ?? 0) - Number(selectedOrder?.advance ?? 0)) <= 1
+                                                ? "0"
+                                                : (Number(selectedOrder.total) - Number(selectedOrder.advance)).toFixed(2)
+                                            )} RON
                                         </p>
-                                        <p className="mb-2">
-                                            <strong>Sumă de plată per rată: </strong>
-                                            {((Number(selectedOrder.total) - Number(selectedOrder.advance)) / 3).toFixed(0)} RON
-                                        </p>
+                                        {(selectedOrder.hasRates) && (
+                                            <p className="mb-2">
+                                                <strong>Sumă de plată per rată: </strong>
+                                                {selectedOrder.course === "Modul Standard"
+                                                    ? `${CONST_STANDARD_COURSE_RATE_PRICE} RON`
+                                                    : selectedOrder.course === "Modul Exclusiv"
+                                                        ? `${CONST_EXCLUSIVE_COURSE_RATE_PRICE} RON`
+                                                        : null}
+                                            </p>
+                                        )}
                                         <p className="mb-2">
                                             <strong>Termen plată rată curentă:</strong> {nextPaymentDateS}
                                         </p>
@@ -299,19 +334,22 @@ export default function OrdersPage() {
                                 ) : (
                                     <p className="mb-2"><strong>Rest de plată:</strong> {selectedOrder.status === "Plata finalizata" ? 0 : Number(selectedOrder.total) - Number(selectedOrder.advance)} RON</p>
                                 )}
-
                                 <p className="mb-4"><strong>Status:</strong> {selectedOrder.status}</p>
 
                                 <div className="text-center flex flex-col gap-2">
-                                    {selectedOrder.status !== "Plata finalizata" ? (
+                                    {selectedOrder.status !== "Plata finalizata" && (selectedOrder?.rateNumber ?? 0) < 3 ? (
                                         selectedOrder.hasRates ? (
                                             <Button
                                                 variant="primary"
-                                                //TODO platește rata curentă
-                                                onClick={() => {}}
+                                                onClick={handleStatusUpdate}
                                                 className="bg-black text-white hover:bg-gray-800"
                                             >
-                                                Plătește rata curentă
+                                                {selectedOrder.status === "Avans platit" ? (
+                                                    <span>Plătește rata 1 din 3</span>
+                                                ) :
+                                                    <span>Plătește rata {(selectedOrder?.rateNumber ?? 0) + 1} din 3</span>
+                                                }
+
                                             </Button>
                                         ) : (
                                             <Button

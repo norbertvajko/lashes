@@ -137,6 +137,7 @@ const ExclusiveCourse = () => {
             ...product,
             totalAmount,
             hasRates: true, 
+            rateNumber: 0,
         };
 
         console.log(payload);

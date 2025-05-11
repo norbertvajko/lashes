@@ -130,6 +130,7 @@ const StandardCourse = () => {
                 ...product,
                 totalAmount,
                 hasRates: true, 
+                rateNumber: 0,
             };
         
             try {
