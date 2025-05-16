@@ -47,6 +47,8 @@ model Order {
   hasRates  Boolean  @default(false)
   rateNumber Int? @default(1)
   nextRateDate DateTime?
+  hasPromoCode Boolean @default(false)
+  promoCode String?
 }
 
 model FavoriteCourses {

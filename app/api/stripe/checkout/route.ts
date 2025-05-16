@@ -40,6 +40,7 @@ export async function POST(request: NextRequest) {
                     totalAmount: body.totalAmount, 
                     hasRates: body.hasRates ? "true" : "false",
                     rateNumber: body.rateNumber ? body.rateNumber.toString() : "1",
+                    discount: (body.discount ?? 0).toString(),
                 },
             });
     

@@ -39,7 +39,7 @@ export const CartItem = (props: CartItemProps) => {
         }
     }
 
-    const totalPrice = quantity ? (parseFloat(price) * itemAmountValue).toFixed(2) : parseFloat(price).toFixed(2);
+    const totalPrice = quantity ? (parseFloat(price) * itemAmountValue).toFixed(0) : parseFloat(price).toFixed(0);
 
     return (
         <div className="flex flex-row">

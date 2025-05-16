@@ -314,7 +314,7 @@ export default function OrdersPage() {
                                             <strong>Rest de plată:</strong>{" "}
                                             {(Math.abs(Number(selectedOrder?.total ?? 0) - Number(selectedOrder?.advance ?? 0)) <= 1
                                                 ? "0"
-                                                : (Number(selectedOrder.total) - Number(selectedOrder.advance)).toFixed(2)
+                                                : (Number(selectedOrder.total) - Number(selectedOrder.advance))
                                             )} RON
                                         </p>
                                         {(selectedOrder.hasRates) && (
@@ -332,8 +332,14 @@ export default function OrdersPage() {
                                         </p>
                                     </>
                                 ) : (
-                                    <p className="mb-2"><strong>Rest de plată:</strong> {selectedOrder.status === "Plata finalizata" ? 0 : Number(selectedOrder.total) - Number(selectedOrder.advance)} RON</p>
-                                )}
+                                    <p className="mb-2">
+                                        <strong>Rest de plată:</strong>{" "}
+                                        {selectedOrder.status === "Plata finalizata"
+                                            ? 0
+                                            : Number(selectedOrder.total) - Number(selectedOrder.advance) === 834
+                                                ? 833
+                                                : Number(selectedOrder.total) - Number(selectedOrder.advance)} RON
+                                    </p>)}
                                 <p className="mb-4"><strong>Status:</strong> {selectedOrder.status}</p>
 
                                 <div className="text-center flex flex-col gap-2">

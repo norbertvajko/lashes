@@ -13,6 +13,8 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
+import { Button } from '@/components/ui/button';
+import { LoadingSpinner } from '@/components/general/loading-spinner';
 
 export type Product = {
     name: string;
@@ -48,6 +50,12 @@ const Breadcrumb: React.FC = () => {
 
 const ExclusiveCourse = () => {
     const [showModal, setShowModal] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState(false);
+
+    const [promoCode, setPromoCode] = useState('');
+    const [promoCodeLoading, setPromoCodeLoading] = useState(false);
+    const [discount, setDiscount] = useState<number | null>(null);
+    const [promoCodeError, setPromoCodeError] = useState<string | null>(null);
 
     const handleOpenModal = () => setShowModal(true);
     const handleCloseModal = () => setShowModal(false);
@@ -95,7 +103,33 @@ const ExclusiveCourse = () => {
         price: CONST_ADVANCE_PAYMENT_PRICE * 100,
     };
 
-    const [isLoading, setIsLoading] = useState(false); // State to track loading status
+    const checkPromoCode = async () => {
+        setPromoCodeLoading(true);
+        setPromoCodeError(null);
+        setDiscount(null);
+
+        try {
+            const res = await fetch('/api/user/orders/check-promo-code', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ promoCode }),
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                setDiscount(data.discount);
+            } else {
+                setPromoCodeError(data.message || 'Cod invalid');
+            }
+        } catch (err) {
+            setPromoCodeError('Eroare la verificare.');
+        } finally {
+            setPromoCodeLoading(false);
+        }
+    };
 
     const handleIntegralPay = async (product: Product) => {
         setIsLoading(true);
@@ -117,7 +151,8 @@ const ExclusiveCourse = () => {
             const session = res.data;
 
             if (session.url) {
-                window.location.href = session.url; // Redirect to Stripe checkout
+                const router = useRouter();
+                router.push(session.url)
             } else {
                 console.error("Failed to create session:", session.error);
             }
@@ -130,29 +165,29 @@ const ExclusiveCourse = () => {
 
     const handleRatePay = async (product: Product) => {
         setIsLoading(true);
-    
+
         const totalAmount = CONST_EXCLUSIVE_COURSE_RATES_PRICE * 100;
-    
+
         const payload = {
             ...product,
             totalAmount,
-            hasRates: true, 
+            discount: discount,
+            hasRates: true,
             rateNumber: 0,
         };
 
-        console.log(payload);
-    
         try {
             const res = await axios.post('/api/stripe/checkout', payload, {
                 headers: {
                     "Content-Type": "application/json",
                 },
             });
-    
+
             const session = res.data;
-    
+
             if (session.url) {
-                window.location.href = session.url; // Redirect to Stripe checkout
+                const router = useRouter();
+                router.push(session.url)
             } else {
                 console.error("Failed to create session:", session.error);
             }
@@ -254,22 +289,43 @@ const ExclusiveCourse = () => {
                                     </DialogContent>
                                 </Dialog>
                             </div>
-                            {/* Color Selection */}
                             <div className="mt-4">
                                 <h4 className="text-md font-bold">📢 Cod Promo</h4>
-                                <div className="flex gap-2 mt-2 flex-wrap">
+                                <div className="flex gap-2 mt-2 flex-wrap items-center">
                                     <div className="relative">
                                         <input
                                             type="text"
+                                            disabled={promoCodeLoading}
+                                            value={promoCode}
+                                            onChange={(e) => setPromoCode(e.target.value)}
                                             className="w-full pl-3 pr-10 py-2 bg-transparent placeholder:text-slate-400 text-slate-600 text-sm border border-slate-200 rounded-md transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
                                             placeholder="Cod promo.."
                                         />
-
                                         <span className="absolute w-3 h-3 top-1 right-5 text-slate-600 text-xl">
                                             🏷️
                                         </span>
                                     </div>
+                                    <Button
+                                        variant="secondary"
+                                        onClick={checkPromoCode}
+                                        disabled={promoCodeLoading || !promoCode}
+                                        className="relative px-4 py-2"
+                                    >
+                                        <span className={promoCodeLoading ? 'invisible' : 'visible'}>Verifică</span>
+                                        {promoCodeLoading && (
+                                            <span className="absolute inset-0 flex items-center justify-center">
+                                                <LoadingSpinner />
+                                            </span>
+                                        )}
+                                    </Button>
                                 </div>
+
+                                {discount !== null && (
+                                    <p className="mt-2 text-green-600 text-sm">✅ Cod valid! Discount: {discount}%</p>
+                                )}
+                                {promoCodeError && (
+                                    <p className="mt-2 text-red-600 text-sm">❌ {promoCodeError}</p>
+                                )}
                             </div>
 
                             <hr className="my-4 border-gray-300" />
