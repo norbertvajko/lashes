@@ -144,8 +144,7 @@ const StandardCourse = () => {
             const session = res.data;
 
             if (session.url) {
-                const router = useRouter();
-                router.push(session.url)
+                window.location.href = session.url;
             } else {
                 console.error("Failed to create session:", session.error);
             }
@@ -179,8 +178,7 @@ const StandardCourse = () => {
             const session = res.data;
 
             if (session.url) {
-                const router = useRouter();
-                router.push(session.url);
+                window.location.href = session.url;
             } else {
                 console.error("Failed to create session:", session.error);
             }
