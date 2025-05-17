@@ -5,6 +5,7 @@ import standardImage from "../../assets/images/Curs_Modul_Standard.jpg";
 import premiumImage from "../../assets/images/Curs_Modul_Exclusiv.jpg.jpg";
 import freeImage from "../../assets/images/Curs_Gratis.jpeg";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 export const HeroCard: React.FC<{
   imgSrc: string;
@@ -13,7 +14,7 @@ export const HeroCard: React.FC<{
   link: string;
   text: string;
   type: 'standard' | 'exclusive' | 'free';
-}> = ({ imgSrc, description, date, link, text, type }) => {
+}> = ({ imgSrc, description, date, link, text }) => {
   return (
     <div className="relative min-h-[520px] max-w-[368px] h-96 rounded-2xl overflow-hidden shadow-lg m-8 group transition-transform transform hover:scale-105">
       <div
@@ -32,12 +33,12 @@ export const HeroCard: React.FC<{
         </div>
         <div className="flex justify-between items-center mt-2 text-sm">
           <div className="text-white">{date}</div>
-          <a
+          <Link
             href={link}
-            className="text-white border border-white px-1 py-1 md:px-4 md:py-2 rounded-md hover:bg-white hover:text-gray-800 transition"
+            className="text-black border bg-white border-white px-1 py-1 md:px-4 md:py-2 rounded-md hover:bg-black hover:text-white hover:border-black transition"
           >
             📚Ce vei învăța la curs
-          </a>
+          </Link>
         </div>
       </div>
     </div>

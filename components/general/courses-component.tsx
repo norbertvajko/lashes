@@ -1,10 +1,9 @@
-import React from 'react'
-import { LogoComponent } from './logo-component';
+import React, { forwardRef } from 'react'
 import { AboutMeSection } from './about-me-section';
 
-const AbutMeComponent = () => {
+const AbutMeComponent = forwardRef<HTMLDivElement>((_, ref) => {
     return (
-        <div className="relative px-0">
+        <div ref={ref} className="relative px-0">
             <svg
                 className="absolute top-0 w-full h-6 -mt-5 sm:-mt-10 sm:h-16 text-deep-purple-accent-400"
                 preserveAspectRatio="none"
@@ -28,6 +27,6 @@ const AbutMeComponent = () => {
             </svg>
         </div>
     )
-}
+});
 
 export default AbutMeComponent;

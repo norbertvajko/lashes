@@ -13,7 +13,8 @@ const banners = [
   lashesBanner
 ];
 
-export const BannerComponent = () => {
+
+export const BannerComponent = ({ aboutMeRef }: { aboutMeRef: React.RefObject<HTMLDivElement> }) => {
   const words = ["fermecătoare", "voluminoase", "seducătoare", "strălucitoare"];
 
   const { isMobile } = useWindowWidth();
@@ -88,14 +89,11 @@ export const BannerComponent = () => {
             </div>
           </CardContent>
 
-        <ScrollDownButton
+          <ScrollDownButton
             text='Despre mine'
             className='absolute bottom-[-45px] sm:bottom-0 mt-0 sm:mt-10 bg-white'
             onClick={() => {
-              window.scrollTo({
-                top: isMobile ? 2530 : 1300,
-                behavior: "smooth"
-              });
+              aboutMeRef.current?.scrollIntoView({ behavior: 'smooth' })
             }}
           />
 

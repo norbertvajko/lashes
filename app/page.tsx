@@ -1,4 +1,6 @@
-import React, { Suspense } from "react";
+'use client';
+
+import React, { Suspense, useRef } from "react";
 import { BannerComponent } from "@/components/general/banner-component";
 import { Navbar } from "@/components/general/navbar";
 import PageLoader from "@/components/page-loader";
@@ -10,22 +12,23 @@ import { CoursesComponentDemo } from "@/components/general/courses-c";
 import AbutMeComponent from "@/components/general/courses-component";
 import { WhatsappContact } from "@/components/general/whatsapp-contact";
 
-const Home = async () => {
+const Home = () => {
+  const aboutMeRef = useRef<HTMLDivElement>(null);
+
   return (
     <>
       <Suspense fallback={<PageLoader />}>
         <header>
           <Navbar />
-          <BannerComponent />
+          <BannerComponent aboutMeRef={aboutMeRef} />
         </header>
         <main className="pb-6">
           <div className="pt-0 sm:pt-7">
             <CoursesComponentDemo />
-            <AbutMeComponent />
+            <AbutMeComponent ref={aboutMeRef} />
             <GalleryComponent />
             <NewsletterComponent />
             <TestimonialsComponent />
-            {/* <SocialLinks /> */}
           </div>
         </main>
         <footer>
