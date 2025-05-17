@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'; 
+
 import { db } from '@/lib/db';
 import { UserRole } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
