@@ -206,7 +206,7 @@ const ExclusiveCourse = () => {
                             <div className="bg-gray-200">
                                 <img
                                     src={exclusiveCourseImg.src}
-                                    alt=""
+                                    alt="Modulul Exclusiv"
                                     className="w-full h-full object-contain rounded-md"
                                 />
                             </div>
@@ -329,7 +329,7 @@ const ExclusiveCourse = () => {
                             <hr className="my-4 border-gray-300" />
                             <BuyCourseButton
                                 session={{ isSignedIn: session.isSignedIn || false }}
-                                isLoading={isLoading} // Pass loading state
+                                isLoading={isLoading} 
                                 handleIntegralPay={handleIntegralPay}
                                 handleRatePay={handleRatePay}
                                 product={product}

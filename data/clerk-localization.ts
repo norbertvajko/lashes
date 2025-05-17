@@ -67,6 +67,7 @@ export const localization = {
     formFieldLabel__password: "Parola",
     formFieldPlaceholder__password: "Introdu parola ta",
     socialButtonsBlockButton: "Continuă cu Google",
+    formFieldError__user_not_found: "Contul nu a fost găsit.",
     common: {
         continue: "Continuă",
         formFieldError: {

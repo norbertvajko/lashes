@@ -4,7 +4,6 @@ import React, { FC } from "react";
 import standardImage from "../../assets/images/Curs_Modul_Standard.jpg";
 import premiumImage from "../../assets/images/Curs_Modul_Exclusiv.jpg.jpg";
 import freeImage from "../../assets/images/Curs_Gratis.jpeg";
-import { motion } from "framer-motion";
 import Link from "next/link";
 
 export const HeroCard: React.FC<{
@@ -58,21 +57,11 @@ export const CoursesComponentDemo: FC<{
       <div className={`flex justify-center bg-white flex-col items-center py-3 ${className}`}>
         {hasTitle && (
           <div className="flex flex-row items-center justify-center gap-2 text-center">
-            <motion.h1
-              className="py-5 font-bold text-3xl bg-clip-text text-transparent"
-              initial={{ backgroundPosition: '100% 0' }}
-              whileHover={{
-                backgroundPosition: '0% 0',
-                transition: { duration: 3.8 },
-              }}
-              style={{
-                backgroundImage: 'linear-gradient(to right, gold 50%, black 50%)',
-                backgroundSize: '200% 100%',
-                WebkitBackgroundClip: 'text',
-              }}
+            <h1
+              className="py-5 font-bold text-3xl text-black"
             >
               Cursuri
-            </motion.h1>
+            </h1>
           </div>
         )}
         <div className="grid gap-3 w-full max-w-[1520px] mx-auto grid-cols-1 md:grid-cols-2 xl:grid-cols-3 items-center">
