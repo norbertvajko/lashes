@@ -52,14 +52,25 @@ export const localization = {
             actionLink: "Creează cont",
             actionText: "Nu ai cont?",
         },
+        password: {
+            title: "Introdu parola ta",
+            subtitle: "Introdu parola asociată contului tău",
+            alternativeMethodsTitle: "Folosește o altă metodă",
+        },
     },
     formFieldLabel__emailAddress: "Adresa e-mail",
+    formFieldPlaceholder__emailAddress: "Introdu adresa ta de email",
+    formFieldLabel__firstName: "Nume",
+    formFieldPlaceholder__firstName: "Introdu numele",
+    formFieldLabel__lastName: "Prenume",
+    formFieldPlaceholder__lastName: "Introdu prenumele",
     formFieldLabel__password: "Parola",
+    formFieldPlaceholder__password: "Introdu parola ta",
     socialButtonsBlockButton: "Continuă cu Google",
     common: {
-        continue: "Continuă", // Textul pentru butonul "Continue"
+        continue: "Continuă",
         formFieldError: {
-            invalid_password_length: "Parola trebuie să aibă cel puțin 8 caractere.", // Cheia corectă
+            invalid_password_length: "Parola trebuie să aibă cel puțin 8 caractere.",
         },
     },
 }
