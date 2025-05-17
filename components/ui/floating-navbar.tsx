@@ -5,7 +5,6 @@ import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-
 import { cn } from "@/utils/cn";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
-import useWindowWidth from "@/hooks/use-window-width";
 import { LoginButton } from "../general/login-button";
 import { SignedIn, UserButton, useSession } from "@clerk/nextjs";
 import { IoIosListBox } from "react-icons/io";
@@ -25,11 +24,10 @@ export const FloatingNav = ({
   const [isClient, setIsClient] = useState(false);
   const { scrollYProgress } = useScroll();
   const [visible, setVisible] = useState(true);
-  const { isMobile } = useWindowWidth();
-  
+
   // State to track loading status
   const [isLoading, setIsLoading] = useState(true);
-  
+
   // Call useSession unconditionally at the top
   const user = useSession();
   const isLoggedIn = user?.isSignedIn;
@@ -106,21 +104,11 @@ export const FloatingNav = ({
                 href={navItem.link}
                 onClick={navItem.onClick && navItem.onClick}
                 className={cn(
-                  "relative group inline-block items-center space-x-1 text-white dark:hover:text-neutral-300 hover:text-neutral-500 text s"
+                  "relative group inline-block items-center text-white dark:hover:text-neutral-300 hover:text-neutral-500",
+                  "text-sm md:text-base font-medium transition-all duration-200 ease-in-out"
                 )}
               >
-                {isMobile ? (
-                  <>
-                    <span className="hover:bg-teal-600 transition duration-300 ease-in-out transform hover:scale-105">
-                      {navItem.icon}
-                    </span>
-                    <div className="invisible group-hover:opacity-100 group-hover:visible absolute bg-black opacity-90 text-white rounded-sm shadow-md">
-                      <p className="px-4 py-2">{navItem.name}</p>
-                    </div>
-                  </>
-                ) : (
-                  <span className="text-sm">{navItem.name}</span>
-                )}
+                <span className="text-xs md:text-sm tracking-wide">{navItem.name}</span>
               </Link>
             ))}
           </ul>
