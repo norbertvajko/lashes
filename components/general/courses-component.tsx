@@ -26,7 +26,9 @@ const AbutMeComponent = forwardRef<HTMLDivElement>((_, ref) => {
                 />
             </svg>
         </div>
-    )
+    );
 });
+
+AbutMeComponent.displayName = "AbutMeComponent";
 
 export default AbutMeComponent;
