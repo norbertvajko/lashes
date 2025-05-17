@@ -1,7 +1,5 @@
 import React from 'react'
-import { LogoComponent } from './logo-component';
 import Link from 'next/link';
-import { Button } from '../ui/button';
 
 export const FooterComponent = () => {
     return (
@@ -25,7 +23,7 @@ export const FooterComponent = () => {
                             </p>
                             <div className="flex text-gray-500">
                                 <p className="mr-1">Denumire: </p>
-                                <p className="transition-colors duration-300 text-deep-purple-accent-400 hover:text-deep-gray-800 text-gray-400">LL LASHES SRL</p>
+                                <p className="transition-colors duration-300 text-deep-purple-accent-400 hover:text-deep-gray-800 text-gray-400">LL LUX LASHES SRL </p>
                             </div>
                             <div className="flex text-gray-500">
                                 <p className="mr-1">CUI:</p>
@@ -85,7 +83,7 @@ export const FooterComponent = () => {
                             >
                                 mail@ll-lashes.ro
                             </a>
-                         </div>
+                        </div>
                         <div className="flex text-gray-500">
                             <p className="mr-1">Adresa:</p>
                             <a

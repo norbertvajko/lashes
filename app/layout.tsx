@@ -34,12 +34,12 @@ export default async function RootLayout({
   return (
     <ClerkProvider localization={roLocalization} >
       <html lang="en" suppressHydrationWarning={true}>
-        <body suppressHydrationWarning={true} className={`${inter.className}`} >
+        <body suppressHydrationWarning={true} className={`${inter.className}`}>
           <Toaster />
           {children}
           {/* <ConsentBanner>
-                  <CookieConsentBanner />
-                </ConsentBanner> */}
+            <CookieConsentBanner />
+          </ConsentBanner> */}
         </body>
       </html>
     </ClerkProvider>

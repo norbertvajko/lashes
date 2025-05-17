@@ -131,9 +131,6 @@ export const TestimonialsComponent = () => {
                                                 <span className="text-yellow-500 text-xl">★</span>
                                                 <span className="text-yellow-500 text-xl">★</span>
                                             </div>
-                                            <span className="font-semibold text-lg text-indigo-600">
-                                                {testimonial.rating.toFixed(1)}
-                                            </span>
                                         </div>
                                         <p
                                             className={`text-gray-600 mb-4 text-base leading-relaxed ${isLongText(testimonial.description) ? "line-clamp-6" : ""
