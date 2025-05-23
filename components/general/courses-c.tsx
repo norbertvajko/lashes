@@ -12,7 +12,7 @@ export const HeroCard: React.FC<{
   date: string;
   link: string;
   text: string;
-  type: 'standard' | 'exclusive' | 'free';
+  type: "standard" | "exclusive" | "free";
 }> = ({ imgSrc, description, date, link, text }) => {
   return (
     <div className="relative min-h-[520px] max-w-[368px] h-96 rounded-2xl overflow-hidden shadow-lg m-8 group transition-transform transform hover:scale-105">
@@ -48,52 +48,44 @@ export const CoursesComponentDemo: FC<{
   hasTitle?: boolean;
   className?: string;
   allCourses?: boolean;
-}> = ({
-  hasTitle = true,
-  className = "",
-  allCourses = false
-}) => {
-    return (
-      <div className={`flex justify-center bg-white flex-col items-center py-3 ${className}`}>
-        {hasTitle && (
-          <div className="flex flex-row items-center justify-center gap-2 text-center">
-            <h1
-              className="py-5 font-bold text-3xl text-black"
-            >
-              Cursuri
-            </h1>
-          </div>
-        )}
-        <div className="grid gap-3 w-full max-w-[1520px] mx-auto grid-cols-1 md:grid-cols-2 xl:grid-cols-3 items-center">
-          <HeroCard
-            imgSrc={standardImage.src}
-            description="Modulul STANDARD"
-            date="20.02.2024"
-            link="/courses/standard"
-            text="🧠Am gândit acest modul introductiv de extensii de gene pentru persoanele care NU SUNT ÎNCĂ SIGURE dacă vor să urmeze o carieră în acest domeniu fascinant, dar doresc să ÎNCERCE și să vadă dacă LE PLACE."
-            type="standard"
-          />
-          <HeroCard
-            imgSrc={premiumImage.src}
-            description="Modulul EXCLUSIVE"
-            date="22.02.2024"
-            link="/courses/exclusive"
-            text="🧠Acest modul este gândit ca un curs de baza + o perfecționare SUPER INTENSIV ca tu să poți imediat dupa curs să ai cliente pe bani. 💰"
-            type="exclusive"
-          />
-          {
-            allCourses && (
-              <HeroCard
-                imgSrc={freeImage.src}
-                description="Modulul GRATUIT"
-                date="22.02.2024"
-                link="/courses/free"
-                text="Daca ai vrea sa te intri in domeniul extensiilor de gene dar inca nu esti sigura ca te vei descurca financiar ,eu am creat pentru tine acest webinar informativ si GRATUIT unde vei afla costurile reale ale acestei meserii frumoase"
-                type="free"
-              />
-            )
-          }
+}> = ({ hasTitle = true, className = "", allCourses = false }) => {
+  return (
+    <div
+      className={`flex justify-center bg-white flex-col items-center py-3 ${className}`}
+    >
+      {hasTitle && (
+        <div className="flex flex-row items-center justify-center gap-2 text-center">
+          <h1 className="py-5 font-bold text-3xl text-black">Cursuri</h1>
         </div>
+      )}
+      <div className="grid gap-3 w-full max-w-[1520px] mx-auto grid-cols-1 md:grid-cols-2 xl:grid-cols-3 items-center">
+        <HeroCard
+          imgSrc={standardImage.src}
+          description="Modulul STANDARD"
+          date="20.02.2024"
+          link="/courses/standard"
+          text="🧠Acest modul de curs l-am gândit ca fiind ideal pentru bobocii care doresc să învețe tehnicile fundamentale și să intre cu ușurință în această industrie."
+          type="standard"
+        />
+        <HeroCard
+          imgSrc={premiumImage.src}
+          description="Modulul EXCLUSIVE"
+          date="22.02.2024"
+          link="/courses/exclusive"
+          text="🧠Acest modul este gândit ca un curs de baza + o perfecționare SUPER INTENSIV ca tu să poți imediat dupa curs să ai cliente pe bani. 💰"
+          type="exclusive"
+        />
+        {allCourses && (
+          <HeroCard
+            imgSrc={freeImage.src}
+            description="Modulul GRATUIT"
+            date="22.02.2024"
+            link="/courses/free"
+            text="Daca ai vrea sa te intri in domeniul extensiilor de gene dar inca nu esti sigura ca te vei descurca financiar ,eu am creat pentru tine acest webinar informativ si GRATUIT unde vei afla costurile reale ale acestei meserii frumoase"
+            type="free"
+          />
+        )}
       </div>
-    );
-  };
+    </div>
+  );
+};
