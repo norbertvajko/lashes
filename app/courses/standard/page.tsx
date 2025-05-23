@@ -72,28 +72,21 @@ const StandardCourse = () => {
     ];
 
     const additionalPoints = [
-        "Cauzele alergiilor din cauza tehnicianului",
-        "Când este contraindicată aplicarea extensiilor de gene",
-        "Componentele adezivului",
-        "Categorii de adezivi",
-        "Tips & Tricks despre adeziv și reguli de utilizare",
-        "Clasificarea și caracteristicile extensiilor de gene",
-        "Grosimea optimă pentru fiecare tehnică",
-        "Cum combinăm curburile",
-        "Forme",
-        "Izolare corectă",
-        "Tipuri de izolare",
-        "Îngrijirea extensiilor",
-        "Îndepărtarea extensiilor de gene corect",
-        "Îngrijirea genelor naturale",
-        "Sănătatea lash artistului și poziția de lucru",
-        "Instrumente și produse necesare",
-        "Dezinfectarea corectă a instrumentelor de lucru",
+        "Istoria extensiilor de gene",
+        "Tipuri de extensii de gene",
+        "Avantajele si dezavantajele extensiilor de gene",
+        "Structura genelor naturale",
+        "Afectiuni oculare",
+        "Alergiile din diverse surse si tratarea acestora",
+        "Cand nu este indicata aplicarea extensiilor de gene",
+        "Componenții adezivului",
+        "Tipologia adezivilor",
+        "Clasificarea si caracterisitcile extensiilor de gene",
+        "Grosimea ideala pentru fiecare tehnica in parte",
+        "Combinarea tehnicilor de volum 1D, 2D si 3D",
+        "Forme aplicare extensii gene",
         "Procedura pas cu pas",
-        "Relația cu clienta",
-        "Durata 5 zile",
-        "Diplomă acreditată",
-        "KIT CU PRODUSE în valoare de 950 RON"
+        "Dezinfectare instrumentar"
     ];
 
     const checkPromoCode = async () => {
@@ -242,9 +235,11 @@ const StandardCourse = () => {
                             <div className="mt-4">
                                 <h3 className="text-lg font-bold">Descriere</h3>
                                 <p className="mt-2 text-sm leading-5">
-                                    🧠Am gândit acest modul introductiv de extensii de gene pentru persoanele care NU SUNT ÎNCĂ SIGURE dacă vor să urmeze o carieră în acest domeniu fascinant, dar doresc să ÎNCERCE și să vadă dacă LE PLACE.
+                                    ↗️ Mai jos aveți detaliile despre cursul de baza - MODULUL STANDARD ✨
+
+                                    🧠Acest modul de curs l-am gândit ca fiind ideal pentru bobocii care doresc să învețe tehnicile fundamentale și să intre cu ușurință în această industrie.
                                 </p>
-                                <p className='text-sm pt-3 font-semibold'>Cursul meu este simplu și accesibil, ideal pentru începători🐣. </p>
+                                <p className='text-sm pt-3 font-semibold'>✅Scopul meu este să îți ofer o BAZĂ SOLIDĂ, pentru a putea aplica corect extensii de la 1D pana la 3D. </p>
                             </div>
                             <div className="mt-4">
                                 <h4 className="text-md font-bold mb-2">📚 Ce vei învăța la curs?</h4>
