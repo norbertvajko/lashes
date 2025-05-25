@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { LoadingSpinner } from "@/components/general/loading-spinner";
+import { toast } from "sonner";
 
 const Breadcrumb: React.FC = () => {
   const router = useRouter();
@@ -105,23 +106,43 @@ const StandardCourse = () => {
     setDiscount(null);
 
     try {
-      const res = await fetch("/api/user/orders/check-promo-code", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+      // 1. Validate promo code
+      const res = await fetch('/api/user/orders/check-promo-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ promoCode }),
       });
 
       const data = await res.json();
 
-      if (res.ok) {
-        setDiscount(data.discount);
-      } else {
-        setPromoCodeError(data.message || "Cod invalid");
+      if (!res.ok) {
+        setPromoCodeError(data.message || 'Cod invalid');
+        return; // stop if invalid
       }
+
+      // promo code is valid, discount received
+      setDiscount(data.discount);
+      // set promoCode to current input (not from response)
+      setPromoCode(promoCode);
+
+      // Now save promo code for current user
+      const saveRes = await fetch('/api/user/orders/apply-promo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ promoCode, discount: data.discount, user: session.session?.user.id }), // use local promoCode variable here
+      });
+
+      const saveData = await saveRes.json();
+      toast.success("Cod promoțional aplicat cu succes!");
+
+
+      if (!saveRes.ok) {
+        setPromoCodeError(saveData.error || "Eroare la salvarea codului promoțional.");
+      }
+
     } catch (err) {
-      setPromoCodeError("Eroare la verificare.");
+      console.error(err);
+      setPromoCodeError('Eroare la verificare.');
     } finally {
       setPromoCodeLoading(false);
     }
@@ -130,22 +151,22 @@ const StandardCourse = () => {
   const handleIntegralPay = async (product: Product) => {
     setIsLoading(true);
 
-    const totalAmount = CONST_STANDARD_COURSE_PRICE * 100;
+    const totalAmount = CONST_STANDARD_COURSE_PRICE;
 
     const payload = {
       ...product,
-      totalAmount,
+      totalAmount: Math.round(totalAmount * 100), // convert to smallest currency unit (e.g., bani)
+      hasPromoCode: !!promoCode,
+      discount,
+      promoCode,
     };
 
     try {
-      const res = await axios.post("/api/stripe/checkout", payload, {
-        headers: {
-          "Content-Type": "application/json",
-        },
+      const res = await axios.post('/api/stripe/checkout', payload, {
+        headers: { "Content-Type": "application/json" },
       });
 
       const session = res.data;
-
       if (session.url) {
         window.location.href = session.url;
       } else {
@@ -154,32 +175,32 @@ const StandardCourse = () => {
     } catch (error) {
       console.error("Error during payment request:", error);
     } finally {
-      setIsLoading(false); // Reset loading state once the request is complete
+      setIsLoading(false);
     }
   };
 
   const handleRatePay = async (product: Product) => {
     setIsLoading(true);
 
-    const totalAmount = CONST_STANDARD_COURSE_RATES_PRICE * 100;
+    let totalAmount = CONST_STANDARD_COURSE_RATES_PRICE;
 
     const payload = {
       ...product,
-      totalAmount,
-      discount: discount,
+      totalAmount: Math.round(totalAmount * 100),
+      discount,
       hasRates: true,
       rateNumber: 0,
+      nextRateDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      hasPromoCode: !!promoCode,
+      promoCode,
     };
 
     try {
-      const res = await axios.post("/api/stripe/checkout", payload, {
-        headers: {
-          "Content-Type": "application/json",
-        },
+      const res = await axios.post('/api/stripe/checkout', payload, {
+        headers: { "Content-Type": "application/json" },
       });
 
       const session = res.data;
-
       if (session.url) {
         window.location.href = session.url;
       } else {
@@ -336,10 +357,8 @@ const StandardCourse = () => {
                   </Button>
                 </div>
 
-                {discount !== null && (
-                  <p className="mt-2 text-green-600 text-sm">
-                    ✅ Cod valid! Discount: {discount}%
-                  </p>
+                {discount !== null && !promoCodeLoading && (
+                  <p className="mt-2 text-green-600 text-sm">✅ Cod valid! Discount: {discount}%</p>
                 )}
                 {promoCodeError && (
                   <p className="mt-2 text-red-600 text-sm">

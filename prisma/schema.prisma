@@ -24,8 +24,20 @@ model User {
   payments              Payment[]          
   favoriteCourses       FavoriteCourses[]   
   cartCourses           CartCourses[]      
-  orders  Order[]
+  orders                Order[]
+  promoCodes            PromoCode[]       
   termsAccepted         String?
+}
+
+model PromoCode {
+  id        Int      @id @default(autoincrement())
+  code      String   @unique
+  discount  Float?
+  expired   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  userId    String   // or Int, depending on your user ID type
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 model NewsletterSubscription {

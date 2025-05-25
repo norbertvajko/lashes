@@ -44,6 +44,7 @@ export async function PATCH(req: Request, { params }: { params: { orderId: strin
                 advance: updatedAdvance,
                 status: updatedStatus,
                 rateNumber: order.hasRates ? newRateNumber : null,
+                hasPromoCode: order.hasPromoCode,
             },
         });
 

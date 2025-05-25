@@ -7,7 +7,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 export async function POST(request: NextRequest) {
     const body = await request.json();
 
-    const { userId } = getAuth(request); 
+    const { userId } = getAuth(request);
 
     if (!userId) {
         return NextResponse.json({ error: "Unauthorized user" }, { status: 401 });
@@ -17,36 +17,38 @@ export async function POST(request: NextRequest) {
         ? "https://ll-lashes.ro"
         : "http://localhost:3000";
 
-        try {
-            const session = await stripe.checkout.sessions.create({
-                success_url: `${baseUrl}/payment/success`,
-                client_reference_id: userId,
-                line_items: [
-                    {
-                        price_data: {
-                            currency: "RON",
-                            product_data: {
-                                name: body.name,
-                                images: [body.image],
-                            },
-                            unit_amount: body.price,
+    try {
+        const session = await stripe.checkout.sessions.create({
+            success_url: `${baseUrl}/payment/success`,
+            client_reference_id: userId,
+            line_items: [
+                {
+                    price_data: {
+                        currency: "RON",
+                        product_data: {
+                            name: body.name,
+                            images: [body.image],
                         },
-                        quantity: 1,
+                        unit_amount: body.price,
                     },
-                ],
-                mode: "payment",
-                payment_method_types: ["card"],
-                metadata: {
-                    totalAmount: body.totalAmount, 
-                    hasRates: body.hasRates ? "true" : "false",
-                    rateNumber: body.rateNumber ? body.rateNumber.toString() : "1",
-                    discount: (body.discount ?? 0).toString(),
+                    quantity: 1,
                 },
-            });
-    
-            return NextResponse.json(session);
-        } catch (error) {
-            console.error("Stripe API error:", error);
-            return NextResponse.json({ error: "Failed to create session" }, { status: 500 });
-        }
+            ],
+            mode: "payment",
+            payment_method_types: ["card"],
+            metadata: {
+                totalAmount: body.totalAmount,
+                hasRates: body.hasRates ? "true" : "false",
+                rateNumber: body.rateNumber ? body.rateNumber.toString() : "1",
+                discount: (body.discount ?? 0).toString(),
+                hasPromoCode: (body.hasPromoCode ? "true" : "false"),
+                promoCode: (body.promoCode ?? "").toString(),
+            },
+        });
+
+        return NextResponse.json(session);
+    } catch (error) {
+        console.error("Stripe API error:", error);
+        return NextResponse.json({ error: "Failed to create session" }, { status: 500 });
+    }
 }

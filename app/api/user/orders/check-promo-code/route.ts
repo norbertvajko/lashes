@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 
 const coduriValide: Record<string, number> = {
+  'LASHY10': 10,
   'LASHY20': 20,
 };
 

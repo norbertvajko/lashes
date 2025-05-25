@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from '@/components/ui/button';
 import { LoadingSpinner } from '@/components/general/loading-spinner';
+import { toast } from 'sonner';
 
 export type Product = {
     name: string;
@@ -109,22 +110,42 @@ const ExclusiveCourse = () => {
         setDiscount(null);
 
         try {
+            // 1. Validate promo code
             const res = await fetch('/api/user/orders/check-promo-code', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ promoCode }),
             });
 
             const data = await res.json();
 
-            if (res.ok) {
-                setDiscount(data.discount);
-            } else {
+            if (!res.ok) {
                 setPromoCodeError(data.message || 'Cod invalid');
+                return; // stop if invalid
             }
+
+            // promo code is valid, discount received
+            setDiscount(data.discount);
+            // set promoCode to current input (not from response)
+            setPromoCode(promoCode);
+
+            // Now save promo code for current user
+            const saveRes = await fetch('/api/user/orders/apply-promo', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ promoCode, discount: data.discount, user: session.session?.user.id }), // use local promoCode variable here
+            });
+
+            const saveData = await saveRes.json();
+            toast.success("Cod promoțional aplicat cu succes!");
+
+
+            if (!saveRes.ok) {
+                setPromoCodeError(saveData.error || "Eroare la salvarea codului promoțional.");
+            }
+
         } catch (err) {
+            console.error(err);
             setPromoCodeError('Eroare la verificare.');
         } finally {
             setPromoCodeLoading(false);
@@ -134,22 +155,22 @@ const ExclusiveCourse = () => {
     const handleIntegralPay = async (product: Product) => {
         setIsLoading(true);
 
-        const totalAmount = CONST_EXCLUSIVE_COURSE_PRICE * 100;
+        const totalAmount = CONST_EXCLUSIVE_COURSE_PRICE;
 
         const payload = {
             ...product,
-            totalAmount,
+            totalAmount: Math.round(totalAmount * 100), // convert to smallest currency unit (e.g., bani)
+            hasPromoCode: !!promoCode,
+            discount,
+            promoCode,
         };
 
         try {
             const res = await axios.post('/api/stripe/checkout', payload, {
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                headers: { "Content-Type": "application/json" },
             });
 
             const session = res.data;
-
             if (session.url) {
                 window.location.href = session.url;
             } else {
@@ -162,28 +183,29 @@ const ExclusiveCourse = () => {
         }
     };
 
+
     const handleRatePay = async (product: Product) => {
         setIsLoading(true);
 
-        const totalAmount = CONST_EXCLUSIVE_COURSE_RATES_PRICE * 100;
-
+        let totalAmount = CONST_EXCLUSIVE_COURSE_RATES_PRICE;
+        
         const payload = {
             ...product,
-            totalAmount,
-            discount: discount,
+            totalAmount: Math.round(totalAmount * 100),
+            discount,
             hasRates: true,
             rateNumber: 0,
+            nextRateDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+            hasPromoCode: !!promoCode,
+            promoCode,
         };
 
         try {
             const res = await axios.post('/api/stripe/checkout', payload, {
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                headers: { "Content-Type": "application/json" },
             });
 
             const session = res.data;
-
             if (session.url) {
                 window.location.href = session.url;
             } else {
@@ -306,10 +328,14 @@ const ExclusiveCourse = () => {
                                     <Button
                                         variant="secondary"
                                         onClick={checkPromoCode}
-                                        disabled={promoCodeLoading || !promoCode}
+                                        disabled={promoCodeLoading || !promoCode || discount !== null}
                                         className="relative px-4 py-2"
                                     >
-                                        <span className={promoCodeLoading ? 'invisible' : 'visible'}>Verifică</span>
+                                        {/* Text is hidden when loading */}
+                                        <span className={promoCodeLoading ? 'invisible' : 'visible'}>
+                                            {discount !== null ? 'Cod promo aplicat' : 'Verifică'}
+                                        </span>
+
                                         {promoCodeLoading && (
                                             <span className="absolute inset-0 flex items-center justify-center">
                                                 <LoadingSpinner />
@@ -318,7 +344,7 @@ const ExclusiveCourse = () => {
                                     </Button>
                                 </div>
 
-                                {discount !== null && (
+                                {discount !== null && !promoCodeLoading && (
                                     <p className="mt-2 text-green-600 text-sm">✅ Cod valid! Discount: {discount}%</p>
                                 )}
                                 {promoCodeError && (
@@ -329,7 +355,7 @@ const ExclusiveCourse = () => {
                             <hr className="my-4 border-gray-300" />
                             <BuyCourseButton
                                 session={{ isSignedIn: session.isSignedIn || false }}
-                                isLoading={isLoading} 
+                                isLoading={isLoading}
                                 handleIntegralPay={handleIntegralPay}
                                 handleRatePay={handleRatePay}
                                 product={product}

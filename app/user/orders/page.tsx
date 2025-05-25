@@ -3,10 +3,11 @@
 import { useState, useEffect } from "react";
 import PageLoader from "@/components/page-loader";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useRouter } from "next/navigation";
 import { useSession } from "@clerk/nextjs";
 import { CONST_ADVANCE_PAYMENT_PRICE, CONST_STANDARD_COURSE_RATE_PRICE, CONST_EXCLUSIVE_COURSE_RATE_PRICE } from "@/constants/courses/data";
+import { useUserPromoCode } from "@/hooks/use-user-promo-code";
 
 type Order = {
     id: number;
@@ -18,6 +19,7 @@ type Order = {
     total: string;
     status: string;
     hasRates: boolean;
+    hasPromoCode?: boolean;
     rateNumber?: number;
     nextRateDate?: Date
 };
@@ -54,6 +56,7 @@ export default function OrdersPage() {
     const [successMessage, setSuccessMessage] = useState<string | null>(null); // State for success message
 
     const router = useRouter();
+    const { promoCode } = useUserPromoCode();
 
     const navigateToCourses = () => {
         router.push('/courses');
@@ -68,6 +71,7 @@ export default function OrdersPage() {
             router.push('/'); // Redirecționează utilizatorul către pagina principală
         }
     }, [isLoggedIn, router]);
+
 
     useEffect(() => {
         const fetchOrders = async () => {
@@ -101,32 +105,36 @@ export default function OrdersPage() {
         setSuccessMessage(null);
     };
 
-    const handleCompletePay = async () => {
+    const handleCompletePay = async (discount = 0) => {
         if (!selectedOrder) return;
 
-        const remainingAmount = Number(selectedOrder.total) - Number(selectedOrder.advance); // Calculăm restul de plată
-        const amountInCents = Math.round(remainingAmount * 100); // Convertim suma la unități de monedă (RON -> bani, adică 1 RON = 100 bani)
+        const initialAdvance = CONST_ADVANCE_PAYMENT_PRICE;
+        const totalCoursePrice = Number(selectedOrder.total);
+        const hasRates = selectedOrder.hasRates;
 
-        // Verificăm dacă există rate
-        const hasRates = selectedOrder.hasRates ? true : false; // True dacă are rate, altfel false
-        const rateNumber = selectedOrder.rateNumber ? selectedOrder.rateNumber : 1; // Verificăm numărul ratei
+        let rateAmountToPay;
 
-        // Calculăm suma de plată pentru o rată, dacă există rate
-        const rateAmountToPay = selectedOrder.hasRates && selectedOrder.course === "Modul Standard"
-            ? CONST_STANDARD_COURSE_RATE_PRICE
-            : selectedOrder.hasRates && selectedOrder.course === "Modul Exclusiv"
-                ? CONST_EXCLUSIVE_COURSE_RATE_PRICE
-                : remainingAmount.toFixed(0);
+        if (hasRates) {
+            const restInitial = totalCoursePrice - initialAdvance;
+            const discountedRestTotal = restInitial * (1 - discount / 100);
+            const rateCount = 3;
 
-        // Construim payload-ul pentru Stripe
+            rateAmountToPay = discountedRestTotal / rateCount; // rată fixă
+        } else {
+            const advancePaid = Number(selectedOrder.advance);
+            const remainingAmount = totalCoursePrice - advancePaid;
+            rateAmountToPay = remainingAmount;
+        }
+
+        const amountInCents = Math.round(rateAmountToPay * 100);
+
         const payload = {
             name: selectedOrder.course,
             image: selectedOrder.image,
-            price: hasRates ? Math.round(Number(rateAmountToPay) * 100) : amountInCents, // Dacă există rate, plata va fi pentru o rată
-            totalAmount: Number(selectedOrder.total) * 100,
+            price: amountInCents,
+            totalAmount: totalCoursePrice * 100,
         };
 
-        // Creăm sesiunea de checkout pentru Stripe
         const res = await fetch('/api/stripe/checkout', {
             method: "POST",
             body: JSON.stringify(payload),
@@ -138,23 +146,29 @@ export default function OrdersPage() {
         const session = await res.json();
 
         if (session.url) {
-            window.location = session.url; // Redirecționează utilizatorul către checkout-ul Stripe
+            window.location = session.url;
         } else {
             console.error("Failed to create session:", session.error);
         }
     };
 
-    // Înainte de a actualiza statusul comenzii, folosim această funcție pentru a crea checkout-ul Stripe
+
     const handleStatusUpdate = async () => {
         if (!selectedOrder) return;
 
         const remainingAmount = Number(selectedOrder.total) - Number(selectedOrder.advance);
 
-        const rateAmountToPay = selectedOrder.hasRates && selectedOrder.course === "Modul Standard"
+        const baseRateAmount = selectedOrder.hasRates && selectedOrder.course === "Modul Standard"
             ? CONST_STANDARD_COURSE_RATE_PRICE
             : selectedOrder.hasRates && selectedOrder.course === "Modul Exclusiv"
                 ? CONST_EXCLUSIVE_COURSE_RATE_PRICE
-                : remainingAmount.toFixed(0);
+                : remainingAmount;
+
+        const shouldApplyDiscount = selectedOrder.hasPromoCode && promoCode?.discount;
+
+        const rateAmountToPay = shouldApplyDiscount
+            ? baseRateAmount * (1 - (promoCode?.discount ?? 0) / 100)
+            : baseRateAmount;
 
         const payload = {
             orderId: selectedOrder.id,
@@ -163,12 +177,10 @@ export default function OrdersPage() {
         };
 
         try {
-            await handleCompletePay(); // Deschide checkout-ul Stripe
+            await handleCompletePay(shouldApplyDiscount ? promoCode.discount ?? 0 : 0);
 
-            // ⚠️ Stripe va trimite un webhook dacă plata e reușită → actualizează în backend
-
-            // 🔁 Așteaptă un pic și apoi cere comanda actualizată din backend
-            await new Promise(resolve => setTimeout(resolve, 2000)); // așteaptă puțin ca Stripe să proceseze webhook-ul
+            // Așteaptă puțin pentru webhook-ul Stripe
+            await new Promise(resolve => setTimeout(resolve, 2000));
 
             const updatedOrderRes = await fetch(`/api/user/orders/${selectedOrder.id}`);
             const updatedOrder = await updatedOrderRes.json();
@@ -178,7 +190,6 @@ export default function OrdersPage() {
                 return;
             }
 
-            // 🟢 Actualizează UI-ul cu datele corecte
             setOrders(prevOrders =>
                 prevOrders
                     ? prevOrders.map(order =>
@@ -235,8 +246,8 @@ export default function OrdersPage() {
                                         <TableHead className="px-6 py-4 text-left font-medium text-black">Data</TableHead>
                                         <TableHead className="px-6 py-4 text-left font-medium text-black">Curs</TableHead>
                                         <TableHead className="px-6 py-4 text-left font-medium text-black">Avans(RON)</TableHead>
-                                        <TableHead className="px-6 py-4 text-left font-medium text-black">Total(RON)</TableHead>
-                                        <TableHead className="px-6 py-4 text-left font-medium text-black">Rest plata(RON)</TableHead>
+                                        {/* <TableHead className="px-6 py-4 text-left font-medium text-black">Total(RON)</TableHead> */}
+                                        {/* <TableHead className="px-6 py-4 text-left font-medium text-black">Rest plata(RON)</TableHead> */}
                                         <TableHead className="px-6 py-4 text-left font-medium text-black">Status</TableHead>
                                         <TableHead className="px-6 py-4 text-left font-medium text-black">Acțiuni</TableHead>
                                     </TableRow>
@@ -244,42 +255,79 @@ export default function OrdersPage() {
 
                                 <TableBody>
                                     {orders.map((order) => (
-                                        <div
-                                            key={order.id}
-                                            className="md:table-row flex flex-col md:flex-row bg-white shadow-lg rounded-lg p-4 mb-4 border md:border-0 border-gray-300 w-full m-0"
-                                        >
-                                            <div className="md:table-cell px-6 py-4 text-black">
+                                        <TableRow key={order.id} className="bg-white shadow-lg rounded-lg p-4 mb-4 border md:border-0 border-gray-300 w-full m-0">
+                                            <TableCell className="px-6 py-4 text-black">
                                                 <span className="block md:hidden font-medium">ID Comandă:</span> {order.id}
-                                            </div>
-
-                                            <div className="md:table-cell px-6 py-4 text-black">
+                                            </TableCell>
+                                            <TableCell className="px-6 py-4 text-black">
                                                 <span className="block md:hidden font-medium">Data:</span> {new Date(order.date).toLocaleDateString('ro-RO')}
-                                            </div>
-                                            <div className="md:table-cell px-6 py-4 text-black">
+                                            </TableCell>
+                                            <TableCell className="px-6 py-4 text-black">
                                                 <span className="block md:hidden font-medium">Curs:</span> {order.course}
-                                            </div>
-                                            <div className="md:table-cell px-6 py-4 text-black">
-                                                <span className="block md:hidden font-medium">Avans:</span>
-                                                {CONST_ADVANCE_PAYMENT_PRICE}
-                                            </div>
-                                            <div className="md:table-cell px-6 py-4 text-black">
-                                                <span className="block md:hidden font-medium">Total(RON):</span> {order.total}
-                                            </div>
-                                            <div className="md:table-cell px-6 py-4 text-black">
+                                            </TableCell>
+                                            <TableCell className="px-6 py-4 text-black">
+                                                <span className="block md:hidden font-medium">Avans:</span> {CONST_ADVANCE_PAYMENT_PRICE}
+                                            </TableCell>
+                                            {/* <TableCell className="px-6 py-4 text-black">
+                                                <span className="block md:hidden font-medium">Total(RON):</span>{" "}
+                                                {(() => {
+                                                    if (selectedOrder?.hasPromoCode) {
+                                                        const total = Number(selectedOrder.total);        // total plătit efectiv (ex: 4200)
+                                                            const advance = Number(selectedOrder.advance);    // avans plătit (ex: 1000)
+                                                            const discount = promoCode?.discount ?? 0;        // discount procentual (ex: 20)
+
+                                                            // Restul plătit cu discount (ex: 3200)
+                                                            const discountedRest = total - advance;
+
+                                                            // Refacem valoarea originală a restului fără discount (ex: 3200 / 0.8 = 4000)
+                                                            const originalRest = discount > 0
+                                                                ? discountedRest / (1 - discount / 100)
+                                                                : discountedRest;
+
+                                                            // Total real: avans + rest original (ex: 1000 + 4000 = 5000)
+                                                            const realCourseTotal = advance + originalRest;
+                                                            console.log(realCourseTotal, "realCourseTotal");
+                                                            return realCourseTotal + advance
+                                                    } else {
+                                                        return Number(order.total)
+                                                    }
+                                                })()}
+                                            </TableCell> */}
+                                            {/* <TableCell className="px-6 py-4 text-black">
                                                 <span className="block md:hidden font-medium">Rest plata:</span>
-                                                {(order.status === "Avans platit" || order.status.includes("Rata"))
-                                                    ? Number(order.total) - Number(order.advance)
+                                                {(order.status === "Avans platit")
+                                                    ? (() => {
+                                                        const total = Number(order.total);
+                                                        const advancePaid = Number(order.advance);
+                                                        const initialAdvance = CONST_ADVANCE_PAYMENT_PRICE;
+                                                        const discount = promoCode?.discount || 0;
+
+                                                        const restInitial = total - initialAdvance;
+
+                                                        if (order.status.includes("Rata")) {
+                                                            const discountedRestTotal = restInitial * (1 - discount / 100);
+                                                            const paidRates = advancePaid - initialAdvance;
+                                                            const restAfterPaidRates = discountedRestTotal - paidRates;
+                                                            return Math.round(restAfterPaidRates);
+                                                        } else if (!discount) {
+                                                            // doar avans plătit, fără rate, fara discount
+                                                            return total - advancePaid;
+                                                        } else if (discount) {
+                                                            // doar avans plătit, fără rate, fara discount
+                                                            return total - advancePaid;
+                                                        }
+                                                    })()
                                                     : 0}
-                                            </div>
-                                            <div className="md:table-cell px-6 py-4 text-black">
+                                            </TableCell> */}
+                                            <TableCell className="px-6 py-4 text-black">
                                                 <span className="block md:hidden font-medium">Status:</span> {order.status}
-                                            </div>
-                                            <div className="md:table-cell px-6 py-4 text-center md:text-left">
+                                            </TableCell>
+                                            <TableCell className="px-6 py-4 text-center md:text-left">
                                                 <Button size="sm" onClick={() => openModal(order)} className="bg-black text-white hover:bg-gray-800">
                                                     Vezi Detalii
                                                 </Button>
-                                            </div>
-                                        </div>
+                                            </TableCell>
+                                        </TableRow>
                                     ))}
                                 </TableBody>
                             </Table>
@@ -305,41 +353,157 @@ export default function OrdersPage() {
                                 <p className="mb-2"><strong>Data:</strong> {new Date(selectedOrder.date).toLocaleDateString('ro-RO')}</p>
                                 <p className="mb-2"><strong>Curs:</strong> {selectedOrder.course}</p>
                                 <p className="mb-2"><strong>Avans:</strong> {CONST_ADVANCE_PAYMENT_PRICE} RON ✅</p>
+                                {/* <p className="mb-2"><strong>Total de plata:</strong> {selectedOrder.total} RON {selectedOrder.status === "Plata finalizata" ? '✅' : ''}</p> */}
 
-                                <p className="mb-2"><strong>Total de plata:</strong> {selectedOrder.total} RON {selectedOrder.status === "Plata finalizata" ? '✅' : ''}</p>
+                                {/* {selectedOrder.status !== "Plata finalizata" && selectedOrder.hasRates ? ( */}
+                                <>
+                                    <p className="mb-2">
+                                        {selectedOrder.status !== "Plata finalizata" ? (
+                                            <>
+                                                {selectedOrder.hasRates ? (
+                                                    <>
+                                                        {selectedOrder.hasPromoCode ? (
+                                                            <>
+                                                                {(() => {
+                                                                    const total = Number(selectedOrder.total);
+                                                                    const advancePaid = Number(selectedOrder.advance);
+                                                                    const initialAdvance = CONST_ADVANCE_PAYMENT_PRICE;
+                                                                    const discount = promoCode?.discount;
+                                                                    const rateCount = 3;
 
-                                {selectedOrder.status !== "Plata finalizata" && selectedOrder.hasRates ? (
-                                    <>
-                                        <p className="mb-2">
-                                            <strong>Rest de plată:</strong>{" "}
-                                            {(Math.abs(Number(selectedOrder?.total ?? 0) - Number(selectedOrder?.advance ?? 0)) <= 1
-                                                ? "0"
-                                                : (Number(selectedOrder.total) - Number(selectedOrder.advance))
-                                            )} RON
-                                        </p>
-                                        {(selectedOrder.hasRates) && (
+                                                                    const restInitial = total - initialAdvance;
+                                                                    const discountedRestTotal = restInitial * (1 - (discount ?? 0) / 100);
+                                                                    const paidRates = advancePaid - initialAdvance;
+                                                                    const restAfterPaidRates = discountedRestTotal - paidRates;
+                                                                    const rateAmount = discountedRestTotal / rateCount;
+
+                                                                    return (
+                                                                        <>
+                                                                            <p className="mb-2"><strong>Suma achitată (până acum):</strong> {advancePaid} RON</p>
+                                                                            <p className="mb-2">
+                                                                                <strong>Rest de plată:</strong> {restAfterPaidRates.toFixed(0)} RON{" "}
+                                                                                {restAfterPaidRates > 0 && (discount ?? 0) > 0 && (
+                                                                                    <small className="text-gray-500">({discount}% discount)</small>
+                                                                                )}
+                                                                            </p>
+                                                                            <p className="mb-2"><strong>Sumă de plată per rată:</strong> {rateAmount.toFixed(0)} RON</p>
+                                                                        </>
+                                                                    );
+                                                                })()}
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                {(() => {
+                                                                    const total = Number(selectedOrder.total);
+                                                                    const advancePaid = Number(selectedOrder.advance);
+                                                                    const initialAdvance = CONST_ADVANCE_PAYMENT_PRICE;
+                                                                    const rateCount = 3;
+
+                                                                    const restInitial = total - initialAdvance;
+                                                                    const paidRates = advancePaid - initialAdvance;
+                                                                    const restAfterPaidRates = restInitial - paidRates;
+                                                                    const rateAmount = restInitial / rateCount;
+
+                                                                    return (
+                                                                        <>
+                                                                            <p className="mb-2"><strong>Suma achitată (până acum):</strong> {advancePaid} RON</p>
+                                                                            <p className="mb-2"><strong>Rest de plată:</strong> {restAfterPaidRates} RON</p>
+                                                                            <p className="mb-2"><strong>Sumă de plată per rată:</strong> {rateAmount.toFixed(0)} RON</p>
+                                                                        </>
+                                                                    );
+                                                                })()}
+                                                            </>
+                                                        )}
+                                                        <p className="mb-2">
+                                                            {selectedOrder.status === "Rata 3 din 3 achitata" ? " " : (<><strong>Termen plată rată curentă:</strong><span className="text-red-400"> {nextPaymentDateS}</span></>)}
+                                                        </p>
+                                                    </>
+                                                ) : selectedOrder.hasPromoCode && promoCode?.discount ? (
+                                                    <>
+                                                        {(() => {
+                                                            const total = Number(selectedOrder.total);        // total plătit efectiv (ex: 4200)
+                                                            const advance = Number(selectedOrder.advance);    // avans plătit (ex: 1000)
+                                                            const discount = promoCode?.discount ?? 0;        // discount procentual (ex: 20)
+
+                                                            // Restul plătit cu discount (ex: 3200)
+                                                            const discountedRest = total - advance;
+
+                                                            // Refacem valoarea originală a restului fără discount (ex: 3200 / 0.8 = 4000)
+
+                                                            const originalRest = discount > 0
+                                                                ? discountedRest / (1 - discount / 100)
+                                                                : discountedRest;
+
+                                                            // Total real: avans + rest original (ex: 1000 + 4000 = 5000)
+                                                            const realCourseTotal = advance + originalRest;
+
+                                                            return (
+                                                                <>
+                                                                    <p className="mb-2"><strong>Total de plată:</strong> {selectedOrder.hasPromoCode ? realCourseTotal : total} RON</p>
+                                                                    <p className="mb-2"><strong>Rest de plată:</strong> {discountedRest} RON <small className="text-gray-500">({discount}% discount)</small></p>
+                                                                </>
+                                                            );
+                                                        })()}
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        {(() => {
+                                                            const total = Number(selectedOrder.total);
+                                                            const advance = Number(selectedOrder.advance);
+                                                            const rest = total - advance;
+
+                                                            return (
+                                                                <>
+                                                                    <p className="mb-2"><strong>Total de plată:</strong> {total} RON</p>
+                                                                    <p className="mb-2"><strong>Rest de plată:</strong> {rest} RON</p>
+                                                                </>
+                                                            );
+                                                        })()}
+                                                    </>
+                                                )}
+                                            </>
+                                        ) : (
                                             <p className="mb-2">
-                                                <strong>Sumă de plată per rată: </strong>
-                                                {selectedOrder.course === "Modul Standard"
-                                                    ? `${CONST_STANDARD_COURSE_RATE_PRICE} RON`
-                                                    : selectedOrder.course === "Modul Exclusiv"
-                                                        ? `${CONST_EXCLUSIVE_COURSE_RATE_PRICE} RON`
-                                                        : null}
+                                                <strong>Rest de plată:</strong>{" "}
+                                                {selectedOrder.status === "Plata finalizata"
+                                                    ? 0
+                                                    : Number(selectedOrder.total) - Number(selectedOrder.advance) === 834
+                                                        ? 833
+                                                        : promoCode?.discount
+                                                            ? ((Number(selectedOrder.total) - Number(selectedOrder.advance)) * (1 - promoCode.discount / 100))
+                                                            : Number(selectedOrder.total) - Number(selectedOrder.advance)
+                                                } RON
                                             </p>
                                         )}
-                                        <p className="mb-2">
-                                            <strong>Termen plată rată curentă:</strong> {nextPaymentDateS}
-                                        </p>
-                                    </>
-                                ) : (
-                                    <p className="mb-2">
+                                    </p>
+                                    {/* {selectedOrder.hasRates && (
+                                            <p className="mb-2">
+                                                <strong>Sumă de plată per rată: </strong>
+                                                {selectedOrder.course === "Modul Standard" || selectedOrder.course === "Modul Exclusiv" ? (
+                                                    <>
+                                                        {(
+                                                            (selectedOrder.course === "Modul Standard"
+                                                                ? CONST_STANDARD_COURSE_RATE_PRICE
+                                                                : CONST_EXCLUSIVE_COURSE_RATE_PRICE) *
+                                                            (1 - (promoCode?.discount ?? 0) / 100)
+                                                        )} RON
+                                                    </>
+                                                ) : null}
+                                            </p>
+                                        )} */}
+                                </>
+                                {/* ) : ( */}
+                                {/* <p className="mb-2">
                                         <strong>Rest de plată:</strong>{" "}
                                         {selectedOrder.status === "Plata finalizata"
                                             ? 0
                                             : Number(selectedOrder.total) - Number(selectedOrder.advance) === 834
                                                 ? 833
-                                                : Number(selectedOrder.total) - Number(selectedOrder.advance)} RON
-                                    </p>)}
+                                                : promoCode?.discount
+                                                    ? ((Number(selectedOrder.total) - Number(selectedOrder.advance)) * (1 - promoCode.discount / 100))
+                                                    : Number(selectedOrder.total) - Number(selectedOrder.advance)
+                                        } RON */}
+                                {/* </p>)} */}
                                 <p className="mb-4"><strong>Status:</strong> {selectedOrder.status}</p>
 
                                 <div className="text-center flex flex-col gap-2">

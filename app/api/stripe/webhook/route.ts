@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { db } from "@/lib/db";
 import { headers } from "next/headers";
-import { CONST_ADVANCE_PAYMENT_PRICE, CONST_EXCLUSIVE_COURSE_RATE_PRICE, CONST_STANDARD_COURSE_RATE_PRICE } from "@/constants/courses/data";
+import { CONST_ADVANCE_PAYMENT_PRICE, CONST_EXCLUSIVE_COURSE_RATE_PRICE, CONST_EXCLUSIVE_COURSE_RATE_PRICE_WITH_PROMO, CONST_STANDARD_COURSE_RATE_PRICE, CONST_STANDARD_COURSE_RATE_PRICE_WITH_PROMO, CONST_EXLUSIVE_COURSE_10_RATE_PRICE, CONST_STANDARD_COURSE_10RATE_PRICE, CONST_STANDARD_COURSE_20RATE_PRICE } from "@/constants/courses/data";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
@@ -41,6 +41,8 @@ async function handleCheckoutSessionCompleted(event: Stripe.Event) {
     const totalAmountFromMetadata = session.metadata?.totalAmount;
     const hasRatesFromMetadata = session.metadata?.hasRates === "true";
     const rateNumberFromMetadata = session.metadata?.rateNumber;
+    const hasPromoCodeFromMetadata = session.metadata?.hasPromoCode === "true";
+    const promoCodeFromMetadata = session.metadata?.promoCode;
 
     if (!totalAmountFromMetadata) {
         console.log("Total amount is missing in metadata.");
@@ -92,12 +94,12 @@ async function handleCheckoutSessionCompleted(event: Stripe.Event) {
         }
 
         const isAdvance = price === CONST_ADVANCE_PAYMENT_PRICE;
-        const isInstallment = price === CONST_EXCLUSIVE_COURSE_RATE_PRICE || price === CONST_STANDARD_COURSE_RATE_PRICE;
+        const isInstallment = price === CONST_EXCLUSIVE_COURSE_RATE_PRICE || price === CONST_STANDARD_COURSE_RATE_PRICE || price === CONST_STANDARD_COURSE_RATE_PRICE_WITH_PROMO || price === CONST_EXCLUSIVE_COURSE_RATE_PRICE_WITH_PROMO || price === CONST_EXLUSIVE_COURSE_10_RATE_PRICE || price === CONST_STANDARD_COURSE_10RATE_PRICE || price === CONST_STANDARD_COURSE_20RATE_PRICE;
 
         if (isInstallment) {
-            await handleInstallmentOrder(userId, price, productName, productImage, totalAmount, hasRatesFromMetadata, rateNumberFromMetadata);
+            await handleInstallmentOrder(userId, price, productName, productImage, totalAmount, hasRatesFromMetadata, rateNumberFromMetadata, hasPromoCodeFromMetadata, promoCodeFromMetadata);
         } else {
-            await handleAdvancePayment(userId, price, productName, productImage, totalAmount, hasRatesFromMetadata, rateNumberFromMetadata);
+            await handleAdvancePayment(userId, price, productName, productImage, totalAmount, hasRatesFromMetadata, rateNumberFromMetadata, hasPromoCodeFromMetadata, promoCodeFromMetadata);
         }
     } catch (err) {
         console.error("Error processing order:", err);
@@ -105,7 +107,7 @@ async function handleCheckoutSessionCompleted(event: Stripe.Event) {
     }
 }
 
-async function handleInstallmentOrder(userId: string, price: number, productName: string, productImage: string, totalAmount: number, hasRates: boolean, rateNumberFromMetadata: string | undefined) {
+async function handleInstallmentOrder(userId: string, price: number, productName: string, productImage: string, totalAmount: number, hasRates: boolean, rateNumberFromMetadata: string | undefined, hasPromoCode: boolean, promoCode: string | undefined) {
     const existingOrder = await db.order.findFirst({
         where: {
             userId,
@@ -140,6 +142,8 @@ async function handleInstallmentOrder(userId: string, price: number, productName
             advance: existingOrder.advance + price,
             rateNumber: currentRateNumber,  // Actualizăm numărul ratei
             status: updatedStatus,          // Actualizăm statusul
+            promoCode: hasPromoCode ? promoCode : existingOrder.promoCode,
+            hasPromoCode: hasPromoCode || existingOrder.hasPromoCode,
         },
     });
 
@@ -148,24 +152,82 @@ async function handleInstallmentOrder(userId: string, price: number, productName
     }
 }
 
-async function handleAdvancePayment(userId: string, price: number, productName: string, productImage: string, totalAmount: number, hasRates: boolean, rateNumberFromMetadata: string | undefined) {
+async function getPromoDetails(code: string): Promise<{ discount: number } | null> {
+    const promo = await db.promoCode.findFirst({
+        where: { code },
+        select: { discount: true },
+    });
+    if (!promo || promo.discount == null) return null;
+    return { discount: promo.discount };
+}
+
+async function handleAdvancePayment(
+    userId: string,
+    price: number,
+    productName: string,
+    productImage: string,
+    totalAmount: number,
+    hasRates: boolean,
+    rateNumberFromMetadata: string | undefined,
+    hasPromoCode: boolean,
+    promoCode: string | undefined
+) {
     const status = price === CONST_ADVANCE_PAYMENT_PRICE ? "Avans platit" : "Plata finalizata";
     const rateNumber = hasRates ? parseInt(rateNumberFromMetadata ?? "1", 10) : 1;
 
-    const order = await db.order.create({
-        data: {
+    const discount = hasPromoCode && promoCode
+        ? (await getPromoDetails(promoCode))?.discount ?? 0
+        : 0;
+
+    let adjustedTotal = totalAmount;
+
+    if (!hasRates && hasPromoCode && discount > 0) {
+        const rest = totalAmount - price;
+        const discountedRest = rest * (1 - discount / 100);
+        adjustedTotal = price + discountedRest;
+    }
+
+    const existingOrder = await db.order.findFirst({
+        where: {
             userId,
-            course: productName,
-            image: productImage,
-            advance: price,
-            total: totalAmount,
-            status,
-            hasRates,
-            rateNumber,
+            hasRates: false,
+            status: "Avans platit",
         },
     });
 
-    await sendContractEmail(order.id);
+    if (existingOrder && status === "Plata finalizata") {
+        // User already paid the advance earlier, now completes the payment
+        await db.order.update({
+            where: { id: existingOrder.id },
+            data: {
+                advance: existingOrder.advance + price,
+                status: "Plata finalizata",
+                total: adjustedTotal,
+                promoCode: hasPromoCode ? promoCode : existingOrder.promoCode,
+                hasPromoCode: hasPromoCode || existingOrder.hasPromoCode,
+            },
+        });
+
+        await sendContractEmail(existingOrder.id);
+    } else {
+        // New order (advance-only or full non-rate payment)
+        const order = await db.order.create({
+            data: {
+                userId,
+                course: productName,
+                image: productImage,
+                advance: price,
+                total: adjustedTotal,
+                status,
+                hasRates,
+                rateNumber,
+                hasPromoCode: !!promoCode,
+                promoCode: promoCode ?? null,
+            },
+        });
+
+        await sendContractEmail(order.id);
+    }
 }
 
 async function handleChargeSucceeded(event: Stripe.Event) {
@@ -207,6 +269,8 @@ async function handleChargeSucceeded(event: Stripe.Event) {
             advance: order.advance + charge.amount / 100,
             rateNumber: currentRateNumber,
             status: updatedStatus,
+            hasPromoCode: order.hasPromoCode,
+            promoCode: order.promoCode,
         },
     });
 
@@ -221,4 +285,16 @@ async function sendContractEmail(orderId: number) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ orderId }),
     });
+}
+
+async function getUserPromoDiscount(userId: string): Promise<{ discount: number; code: string } | null> {
+    const promo = await db.promoCode.findFirst({
+        where: { userId },
+        orderBy: { createdAt: 'desc' }, // Take the latest one
+        select: { discount: true, code: true },
+    });
+
+    if (!promo || promo.discount == null) return null;
+
+    return { discount: promo.discount, code: promo.code };
 }
