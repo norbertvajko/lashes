@@ -118,7 +118,7 @@ const GalleryComponent: React.FC = () => {
     const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
 
     //for mobile autoplay
-    const plugin = useRef(Autoplay({ delay: 5500, stopOnInteraction: true }));
+    const plugin = useRef(Autoplay({ delay: 5500, stopOnInteraction: true }) as any);
 
     const isMobile = useIsMobile();
 
