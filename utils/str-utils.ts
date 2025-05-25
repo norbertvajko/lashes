@@ -17,7 +17,7 @@ export const convertDiacriticsToNormal = (str: string) => {
 
 export const splitStringsUsingRegex = (inputString: string): string[] => {
     // Split by newline and keep empty strings for consecutive new lines
-    const lines = inputString.split(/(\n)/gu);
+    const lines = inputString.split(/(\n)/g);
     const chars: string[] = [];
 
     for (const line of lines) {
