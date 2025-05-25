@@ -2,9 +2,9 @@
 
 import { useIsMobile } from "@/hooks/use-is-mobile";
 
-export const NewsletterSection = async () => {
-    const isMobile = useIsMobile();
 
+export const NewsletterSection = async () => {
+    const isMobile = useIsMobile()
     return (
         <>
             <div className="relative w-full h-full md:h-screen bg-black/90">
