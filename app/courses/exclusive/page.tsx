@@ -95,7 +95,7 @@ const ExclusiveCourse = () => {
         "KIT inclus în valoare de 1100 RON",
         "Durata 7 zile",
         "BONUS: două casete cadou separat de kit 🎁 pentru un boost la perfecționarea voastră ✨",
-        "DIPLOMĂ ACREDITATĂ"
+        "Două diplome"
     ];
 
     const product: Product = {

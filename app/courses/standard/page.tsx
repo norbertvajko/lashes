@@ -98,6 +98,7 @@ const StandardCourse = () => {
     "Forme aplicare extensii gene",
     "Procedura pas cu pas",
     "Dezinfectare instrumentar",
+    "Diplomă de participare"
   ];
 
   const checkPromoCode = async () => {
