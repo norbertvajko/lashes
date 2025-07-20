@@ -3,6 +3,7 @@ import Stripe from "stripe";
 import { db } from "@/lib/db";
 import { headers } from "next/headers";
 import { CONST_ADVANCE_PAYMENT_PRICE, CONST_EXCLUSIVE_COURSE_RATE_PRICE, CONST_EXCLUSIVE_COURSE_RATE_PRICE_WITH_PROMO, CONST_STANDARD_COURSE_RATE_PRICE, CONST_STANDARD_COURSE_RATE_PRICE_WITH_PROMO, CONST_EXLUSIVE_COURSE_10_RATE_PRICE, CONST_STANDARD_COURSE_10RATE_PRICE, CONST_STANDARD_COURSE_20RATE_PRICE } from "@/constants/courses/data";
+import { clerkClient } from "@clerk/nextjs/server";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
@@ -101,6 +102,63 @@ async function handleCheckoutSessionCompleted(event: Stripe.Event) {
         } else {
             await handleAdvancePayment(userId, price, productName, productImage, totalAmount, hasRatesFromMetadata, rateNumberFromMetadata, hasPromoCodeFromMetadata, promoCodeFromMetadata);
         }
+
+        try {
+            let stripeCustomerId = session.customer as string | undefined;
+
+            const clerk = await clerkClient();
+            const clerkUser = await clerk.users.getUser(clerkUserId);
+
+            if (!stripeCustomerId) {
+                const user = await db.user.findUnique({
+                    where: { clerkUserId },
+                    select: { email: true },
+                });
+
+                const newCustomer = await stripe.customers.create({
+                    metadata: { clerkUserId },
+                    email: user?.email ?? undefined,
+                    name: `${clerkUser.firstName ?? ""} ${clerkUser.lastName ?? ""}`.trim() ?? "",
+                });
+
+                stripeCustomerId = newCustomer.id;
+
+                // TODO: Salvează stripeCustomerId în DB pentru reutilizare
+                // await db.stripeCustomer.create({...})
+            }
+
+            await stripe.invoiceItems.create({
+                customer: stripeCustomerId,
+                amount: session.amount_total ?? 0,
+                currency: "RON",
+                description: productName,
+            });
+
+            const invoice = await stripe.invoices.create({
+                customer: stripeCustomerId,
+                collection_method: "send_invoice", // esențial pentru a nu include "Pay Online"
+                days_until_due: 0,
+                auto_advance: true, // finalizează automat factura
+                pending_invoice_items_behavior: "include",
+            });
+
+            // 2. Finalizezi factura
+            const finalizedInvoice = await stripe.invoices.finalizeInvoice(invoice.id);
+
+            // 3. O marchezi ca plătită MANUAL
+            await stripe.invoices.pay(finalizedInvoice.id, {
+                paid_out_of_band: true,
+            });
+
+            // 4. Aștepți puțin pentru PDF
+            await new Promise((r) => setTimeout(r, 1000));
+
+            // 5. Trimiți email
+            await sendInvoiceEmail(finalizedInvoice.id);
+        } catch (error) {
+            console.error("Error creating invoice or sending invoice email:", error);
+        }
+
     } catch (err) {
         console.error("Error processing order:", err);
         return NextResponse.json({ error: "Error processing order" }, { status: 500 });
@@ -287,14 +345,10 @@ async function sendContractEmail(orderId: number) {
     });
 }
 
-async function getUserPromoDiscount(userId: string): Promise<{ discount: number; code: string } | null> {
-    const promo = await db.promoCode.findFirst({
-        where: { userId },
-        orderBy: { createdAt: 'desc' }, // Take the latest one
-        select: { discount: true, code: true },
+async function sendInvoiceEmail(invoiceId: string) {
+    await fetch(`${baseUrl}/api/emails/invoice`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ invoiceId }),
     });
-
-    if (!promo || promo.discount == null) return null;
-
-    return { discount: promo.discount, code: promo.code };
 }
